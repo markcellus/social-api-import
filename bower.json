@@ -1,0 +1,32 @@
+{
+  "name": "social-api",
+  "version": "0.0.0",
+  "homepage": "https://github.com/mkay581/social-api",
+  "authors": [
+    "Mark Kennedy <mkay581@gmail.com>"
+  ],
+  "description": "Client-side social network API middleware",
+  "moduleType": [
+    "amd",
+    "es6",
+    "node"
+  ],
+  "keywords": [
+    "social",
+    "social network api",
+    "social api"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "devDependencies": {
+    "requirejs": "~2.1.15",
+    "qunit": "~1.16.0",
+    "sinonjs": "~1.10.2"
+  }
+}
