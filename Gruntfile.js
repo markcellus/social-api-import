@@ -12,7 +12,7 @@ module.exports = function(grunt) {
                         cwd: 'src',
                         dest: 'dist',
                         src: [
-                            'social-api.js'
+                            '**/*.js'
                         ]
                     }
                 ]
