@@ -1,4 +1,4 @@
-define(function () {
+define(['./utils'], function (Utils) {
     'use strict';
 
     /**
@@ -16,9 +16,13 @@ define(function () {
          */
         load: function (options, callback) {
 
-            var apiConfig = options.apiConfig;
-            apiConfig.version = apiConfig.version || 'v2.1';
-            apiConfig.xfbml = options.apiConfig.xfbml || true;
+            options = Utils.extend({
+                scriptUrl: '//connect.facebook.net/en_US/sdk.js',
+                apiConfig: {}
+            }, options);
+
+            options.apiConfig.version = options.apiConfig.version || 'v2.1';
+            options.apiConfig.xfbml = options.apiConfig.xfbml || true;
 
             window.fbAsyncInit = function() {
                 FB.init(options.apiConfig);

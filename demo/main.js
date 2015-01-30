@@ -3,7 +3,7 @@ require(['../src/facebook'], function (Facebook) {
         options = {
             apiConfig: {appId: '1608140682749244'}
         };
-    Facebook.load(options, function () {
+    Facebook.load(options, function (FB) {
         feedEl.innerHTML = '<div class="fb-post" data-href="https://www.facebook.com/FacebookDevelopers/posts/10151471074398553" data-width="500"></div>';
     });
 
