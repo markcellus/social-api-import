@@ -1,6 +1,6 @@
 {
   "name": "social-api",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Client-side social network API middleware",
   "repository": {
     "type": "git",
