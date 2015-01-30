@@ -1,4 +1,4 @@
-require(['src/facebook'], function (Facebook) {
+require(['../src/facebook'], function (Facebook) {
     var feedEl = document.getElementsByClassName('module-social-feed-fb')[0],
         options = {
             apiConfig: {appId: '1608140682749244'}
