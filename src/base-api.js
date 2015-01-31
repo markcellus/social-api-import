@@ -28,17 +28,22 @@ define( function () {
          * @abstract
          */
         loadScript: function (el, path, id, callback) {
-            var js,
-                fjs = el.getElementsByTagName('script')[0];
+            var scriptEl,
+                parentEl = el.getElementsByTagName('script')[0],
+                loaded = false;
             if (!el.querySelector('#' + id)) {
-                js = document.createElement('script');
-                js.id = id;
-                js.src = path;
-                fjs.parentNode.insertBefore(js, fjs);
+                scriptEl = document.createElement('script');
+                scriptEl.id = id;
+                scriptEl.src = path;
+                scriptEl.onload = scriptEl.onreadystatechange = function () {
+                    if (!loaded && (!this.readyState || this.readyState === 'complete')) {
+                        loaded = true;
+                        callback ? callback() : null;
+                    }
+                };
+                parentEl.parentNode.insertBefore(scriptEl, parentEl);
             }
-            callback ? callback() : null;
         }
-
     };
     return BaseApi;
 
