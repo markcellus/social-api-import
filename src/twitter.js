@@ -1,11 +1,11 @@
-define(['./utils'], function (Utils) {
+define(['./utils', './base-api'], function (Utils, BaseApi) {
     'use strict';
 
     /**
      * Twitter API-loading class.
      * @class Twitter
      */
-    var Twitter = {
+    var Twitter = Utils.extend({}, BaseApi, {
 
         /**
          * Loads the script to the API and returns the FB object.
@@ -21,24 +21,16 @@ define(['./utils'], function (Utils) {
                 apiConfig: {}
             }, options);
 
-            window.twttr = (function(d, s, id) {
-                var js, fjs = d.getElementsByTagName(s)[0],
-                    t = window.twttr || {};
-                if (d.getElementById(id)) return;
-                js = d.createElement(s);
-                js.id = id;
-                js.src = options.scriptUrl;
-                fjs.parentNode.insertBefore(js, fjs);
-                t._e = [];
-                t.ready = function(f) {
-                    t._e.push(f);
-                };
-                callback ? callback(t) : null;
-                return t;
-            }(document, 'script', 'twitter-wjs'));
+            this.loadScript(document, options.scriptUrl, 'twitter-wjs');
+            var t = window.twttr || {};
+            t.ready = function(f) {
+                t._e.push(f);
+            };
+            callback ? callback(t) : null;
+            window.twttr = t;
         }
 
-    };
-    return Twitter;
+    });
 
+    return Twitter;
 });

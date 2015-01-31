@@ -1,11 +1,11 @@
-define(['./utils'], function (Utils) {
+define(['./utils', './base-api'], function (Utils, BaseApi) {
     'use strict';
 
     /**
      * Facebook API class.
      * @class Facebook
      */
-    var Facebook = {
+    var Facebook = Utils.extend({}, BaseApi, {
 
         /**
          * Loads the script to the API and returns the FB object.
@@ -28,16 +28,10 @@ define(['./utils'], function (Utils) {
                 FB.init(options.apiConfig);
                 callback ? callback(FB) : null;
             };
-            (function(d, s, id) {
-                var js, fjs = d.getElementsByTagName(s)[0];
-                if (d.getElementById(id)) return;
-                js = d.createElement(s); js.id = id;
-                js.src = options.scriptUrl;
-                fjs.parentNode.insertBefore(js, fjs);
-            }.bind(this)(document, 'script', 'facebook-jssdk'));
+            this.loadScript(document, options.scriptUrl, 'facebook-jssdk');
         }
 
-    };
+    });
     return Facebook;
 
 });

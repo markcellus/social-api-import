@@ -1,11 +1,11 @@
-define(['./utils'], function (Utils) {
+define(['./utils', './base-api'], function (Utils, BaseApi) {
     'use strict';
 
     /**
      * Instagram API-loading class.
      * @class Instagram
      */
-    var Instagram = {
+    var Instagram = Utils.extend({}, BaseApi, {
 
         /**
          * Loads the script to the API and returns the FB object.
@@ -15,25 +15,16 @@ define(['./utils'], function (Utils) {
          * @param {Function} [callback] - Fires when the FB SDK has been loaded passed the FB object
          */
         load: function (options, callback) {
-            var js,
-                fjs = document.getElementsByTagName('script')[0],
-                id = 'instagram-sdk';
 
             options = Utils.extend({
                 scriptUrl: '//platform.instagram.com/en_US/embeds.js',
                 apiConfig: {}
             }, options);
 
-            if (!document.getElementById(id)) {
-                js = document.createElement('script');
-                js.id = id;
-                js.src = options.scriptUrl;
-                fjs.parentNode.insertBefore(js, fjs);
-            }
-            callback ? callback() : null;
+            this.loadScript(document, options.scriptUrl, 'instagram-sdk', callback);
         }
 
-    };
+    });
     return Instagram;
 
 });
