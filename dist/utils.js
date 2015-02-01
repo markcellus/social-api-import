@@ -1,3 +1,8 @@
+/** 
+* social-api - v0.0.1.
+* https://github.com/mkay581/social-api.git
+* Copyright 2015 Mark Kennedy. Licensed MIT.
+*/
 define([], function () {
     'use strict';
 

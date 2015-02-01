@@ -7,10 +7,10 @@ define(['./utils', './base-api'], function (Utils, BaseApi) {
     'use strict';
 
     /**
-     * Facebook API class.
-     * @class Facebook
+     * Twitter API-loading class.
+     * @class Twitter
      */
-    var Facebook = Utils.extend({}, BaseApi, {
+    var Twitter = Utils.extend({}, BaseApi, {
 
         /**
          * Loads the script to the API and returns the FB object.
@@ -22,21 +22,20 @@ define(['./utils', './base-api'], function (Utils, BaseApi) {
         load: function (options, callback) {
 
             options = Utils.extend({
-                scriptUrl: '//connect.facebook.net/en_US/sdk.js',
+                scriptUrl: 'https://platform.twitter.com/widgets.js',
                 apiConfig: {}
             }, options);
 
-            options.apiConfig.version = options.apiConfig.version || 'v2.1';
-            options.apiConfig.xfbml = options.apiConfig.xfbml || true;
-
-            window.fbAsyncInit = function() {
-                FB.init(options.apiConfig);
-                callback ? callback(FB) : null;
+            this.loadScript(document, options.scriptUrl, 'twitter-wjs');
+            var t = window.twttr || {};
+            t.ready = function(f) {
+                t._e.push(f);
             };
-            this.loadScript(document, options.scriptUrl, 'facebook-jssdk');
+            callback ? callback(t) : null;
+            window.twttr = t;
         }
 
     });
-    return Facebook;
 
+    return Twitter;
 });

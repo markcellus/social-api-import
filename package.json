@@ -1,6 +1,10 @@
 {
   "name": "social-api",
   "version": "0.0.1",
+  "author": {
+    "name": "Mark Kennedy",
+    "url": "http://heyimmark.com"
+  },
   "description": "Client-side social network API middleware",
   "repository": {
     "type": "git",
@@ -13,15 +17,8 @@
   ],
   "devDependencies": {
     "grunt": "0.4.5",
-    "grunt-banner": "^0.2.3",
-    "grunt-bump": "0.0.16",
-    "grunt-contrib-clean": "^0.6.0",
-    "grunt-contrib-connect": "~0.8.0",
-    "grunt-contrib-copy": "^0.6.0",
-    "grunt-contrib-jshint": "0.10.0",
-    "grunt-contrib-qunit": "~0.5.2",
+    "grunt-build-tools": "^0.1.5",
     "grunt-contrib-requirejs": "0.4.4",
-    "grunt-contrib-uglify": "^0.6.0",
     "load-grunt-tasks": "0.6.0",
     "phantomjs": "~1.9.7",
     "qunitjs": "1.14.0"
