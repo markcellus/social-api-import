@@ -20,14 +20,14 @@ define(['./utils', './base-api'], function (Utils, BaseApi) {
                 scriptUrl: 'https://platform.twitter.com/widgets.js',
                 apiConfig: {}
             }, options);
-
-            this.loadScript(document, options.scriptUrl, 'twitter-wjs');
             var t = window.twttr || {};
             t.ready = function(f) {
                 t._e.push(f);
             };
-            callback ? callback(t) : null;
             window.twttr = t;
+            this.loadScript(document, options.scriptUrl, 'twitter-wjs', function () {
+                callback ? callback(t) : null;
+            });
         }
 
     });
