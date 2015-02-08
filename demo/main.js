@@ -1,8 +1,32 @@
+requirejs.config({
+    paths: {
+        facebook: '../dist/facebook',
+        twitter: '../dist/twitter',
+        instagram: '../dist/instagram',
+        tumblr: '../dist/tumblr'
+    },
+    shim: {
+        facebook: {
+            exports: 'SocialApi.Facebook'
+        },
+        twitter: {
+            exports: 'SocialApi.Twitter'
+        },
+        instagram: {
+            exports: 'SocialApi.Instagram'
+        },
+        tumblr: {
+            exports: 'SocialApi.Tumblr'
+        }
+    }
+});
+
+
 require([
-    '../src/facebook',
-    '../src/twitter',
-    '../src/instagram',
-    '../src/tumblr'
+    'facebook',
+    'twitter',
+    'instagram',
+    'tumblr'
 ], function (
     Facebook,
     Twitter,

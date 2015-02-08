@@ -6,13 +6,13 @@ module.exports = function(grunt) {
         bt: {
             dist: ['dist']
         },
-        requirejs: {
-            compile: {
-                options: {
-                    baseUrl: 'src',
-                    dir: "dist",
-                    removeCombined: true,
-                    optimize: 'none'
+        browserify: {
+            dist: {
+                files: {
+                    'dist/facebook.js': ['src/facebook.js'],
+                    'dist/instagram.js': ['src/instagram.js'],
+                    'dist/tumblr.js': ['src/tumblr.js'],
+                    'dist/twitter.js': ['src/twitter.js']
                 }
             }
         }
@@ -22,8 +22,7 @@ module.exports = function(grunt) {
     require("load-grunt-tasks")(grunt);
 
     grunt.registerTask( "build", [
-        //"requirejs",
-        "bt:build"
+        "browserify"
     ]);
 
 };
