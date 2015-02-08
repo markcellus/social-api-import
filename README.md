@@ -26,7 +26,7 @@ work with the object directly.
 
 ```javascript
 var options = {
-  apiConfig: {appId: '1608140682749244'}
+  apiConfig: {appId: 'MyAP33IYEK3y'}
 };
 
 // load the facebook API
