@@ -1,41 +1,44 @@
-'use strict';
+define(function(require, exports, module) {
 
-var Utils = require('./utils');
-var BaseApi = require('./base-api');
+    'use strict';
 
-/**
- * Facebook API class.
- * @class Facebook
- */
-var Facebook = Utils.extend({}, BaseApi, {
+    var Utils = require('./utils');
+    var BaseApi = require('./base-api');
 
     /**
-     * Loads the script to the API and returns the FB object.
-     * @param {Object} options - load options
-     * @param {Object} options.scriptUrl - The src url of the script js file
-     * @param {Object} options.apiConfig - The FB.init() options
-     * @param {Function} [callback] - Fires when the FB SDK has been loaded passed the FB object
+     * Facebook API class.
+     * @class Facebook
      */
-    load: function (options, callback) {
+    var Facebook = Utils.extend({}, BaseApi.prototype, {
 
-        options = Utils.extend({
-            scriptUrl: '//connect.facebook.net/en_US/sdk.js',
-            apiConfig: {}
-        }, options);
+        /**
+         * Loads the script to the API and returns the FB object.
+         * @param {Object} options - load options
+         * @param {Object} options.scriptUrl - The src url of the script js file
+         * @param {Object} options.apiConfig - The FB.init() options
+         * @param {Function} [callback] - Fires when the FB SDK has been loaded passed the FB object
+         */
+        load: function (options, callback) {
 
-        options.apiConfig.version = options.apiConfig.version || 'v2.1';
-        options.apiConfig.xfbml = options.apiConfig.xfbml || true;
+            options = Utils.extend({
+                scriptUrl: '//connect.facebook.net/en_US/sdk.js',
+                apiConfig: {}
+            }, options);
 
-        window.fbAsyncInit = function() {
-            FB.init(options.apiConfig);
-            callback ? callback(FB) : null;
-        };
-        this.loadScript(document, options.scriptUrl, 'facebook-jssdk');
-    }
+            options.apiConfig.version = options.apiConfig.version || 'v2.1';
+            options.apiConfig.xfbml = options.apiConfig.xfbml || true;
+
+            window.fbAsyncInit = function () {
+                FB.init(options.apiConfig);
+                callback ? callback(FB) : null;
+            };
+            this.loadScript(document, options.scriptUrl, 'facebook-jssdk');
+        }
+
+    });
+
+    module.exports = window.SocialApi.Facebook = Facebook;
 
 });
-
-module.exports = window.SocialApi.Facebook = Facebook;
-
 
 

@@ -1,31 +1,34 @@
-'use strict';
+define(function(require, exports, module) {
 
-var Utils = require('./utils');
-var BaseApi = require('./base-api');
+    'use strict';
 
-/**
- * Instagram API-loading class.
- * @class Instagram
- */
-var Instagram = Utils.extend({}, BaseApi, {
+    var Utils = require('./utils');
+    var BaseApi = require('./base-api');
 
     /**
-     * Loads the script to the API and returns the FB object.
-     * @param {Object} options - load options
-     * @param {Object} options.scriptUrl - The src url of the script js file
-     * @param {Object} options.apiConfig - The FB.init() options
-     * @param {Function} [callback] - Fires when the FB SDK has been loaded passed the FB object
+     * Instagram API-loading class.
+     * @class Instagram
      */
-    load: function (options, callback) {
+    var Instagram = Utils.extend({}, BaseApi.prototype, {
 
-        options = Utils.extend({
-            scriptUrl: '//platform.instagram.com/en_US/embeds.js',
-            apiConfig: {}
-        }, options);
+        /**
+         * Loads the script to the API and returns the FB object.
+         * @param {Object} options - load options
+         * @param {Object} options.scriptUrl - The src url of the script js file
+         * @param {Object} options.apiConfig - The FB.init() options
+         * @param {Function} [callback] - Fires when the FB SDK has been loaded passed the FB object
+         */
+        load: function (options, callback) {
 
-        this.loadScript(document, options.scriptUrl, 'instagram-sdk', callback);
-    }
+            options = Utils.extend({
+                scriptUrl: '//platform.instagram.com/en_US/embeds.js',
+                apiConfig: {}
+            }, options);
 
+            this.loadScript(document, options.scriptUrl, 'instagram-sdk', callback);
+        }
+
+    });
+
+    module.exports = window.SocialApi.Instagram = Instagram;
 });
-
-module.exports = window.SocialApi.Instagram = Instagram;
