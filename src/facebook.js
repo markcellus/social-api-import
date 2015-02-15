@@ -9,7 +9,11 @@ define(function(require, exports, module) {
      * Facebook API class.
      * @class Facebook
      */
-    var Facebook = Utils.extend({}, BaseApi.prototype, {
+    var Facebook = function () {
+        this.initialize();
+    };
+
+    Facebook.prototype = Utils.extend({}, BaseApi.prototype, {
 
         /**
          * Loads the script to the API and returns the FB object.
@@ -28,16 +32,19 @@ define(function(require, exports, module) {
             options.apiConfig.version = options.apiConfig.version || 'v2.1';
             options.apiConfig.xfbml = options.apiConfig.xfbml || true;
 
+            this.options = options;
+
             window.fbAsyncInit = function () {
                 FB.init(options.apiConfig);
-                callback ? callback(FB) : null;
-            };
-            this.loadScript(document, options.scriptUrl, 'facebook-jssdk');
+                this._triggerScriptLoaded(FB);
+            }.bind(this);
+
+            this.injectScript(options.scriptUrl, 'facebook-jssdk', callback);
         }
 
     });
 
-    module.exports = window.SocialApi.Facebook = Facebook;
+    module.exports = window.SocialApi.Facebook = new Facebook();
 
 });
 

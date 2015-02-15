@@ -9,7 +9,10 @@ define(function(require, exports, module) {
      * Instagram API-loading class.
      * @class Instagram
      */
-    var Instagram = Utils.extend({}, BaseApi.prototype, {
+    var Instagram = function () {
+        this.initialize();
+    };
+    Instagram.prototype = Utils.extend({}, BaseApi.prototype, {
 
         /**
          * Loads the script to the API and returns the FB object.
@@ -25,10 +28,10 @@ define(function(require, exports, module) {
                 apiConfig: {}
             }, options);
 
-            this.loadScript(document, options.scriptUrl, 'instagram-sdk', callback);
+            this.loadScript(options.scriptUrl, 'instagram-sdk', callback);
         }
 
     });
 
-    module.exports = window.SocialApi.Instagram = Instagram;
+    module.exports = window.SocialApi.Instagram = new Instagram();
 });

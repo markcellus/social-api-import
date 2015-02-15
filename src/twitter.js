@@ -9,7 +9,10 @@ define(function(require, exports, module) {
      * Twitter API-loading class.
      * @class Twitter
      */
-    var Twitter = Utils.extend({}, BaseApi.prototype, {
+    var Twitter = function () {
+        this.initialize();
+    };
+    Twitter.prototype = Utils.extend({}, BaseApi.prototype, {
 
         /**
          * Loads the script to the API and returns the FB object.
@@ -29,12 +32,13 @@ define(function(require, exports, module) {
                 t._e.push(f);
             };
             window.twttr = t;
-            this.loadScript(document, options.scriptUrl, 'twitter-wjs', function () {
+            this.loadScript(options.scriptUrl, 'twitter-wjs', function () {
                 callback ? callback(t) : null;
             });
+            this._triggerScriptLoaded();
         }
 
     });
 
-    module.exports = window.SocialApi.Twitter = Twitter;
+    module.exports = window.SocialApi.Twitter = new Twitter();
 });

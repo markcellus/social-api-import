@@ -8,7 +8,10 @@ define(function(require, exports, module) {
      * Tumblr API-loading class.
      * @class Tumblr
      */
-    var Tumblr = Utils.extend({}, BaseApi.prototype, {
+    var Tumblr = function () {
+        this.initialize();
+    };
+    Tumblr.prototype = Utils.extend({}, BaseApi.prototype, {
 
         /**
          * Loads the script to the API.
@@ -19,15 +22,11 @@ define(function(require, exports, module) {
          * @param {Function} [callback] - Fires when the FB SDK has been loaded
          */
         load: function (options, callback) {
-            var onReadyCallback = 'onTumblrReady';
+            this.onReadyCallback = 'onTumblrReady';
 
             this.options = options = Utils.extend({
                 apiConfig: {}
             }, options);
-
-            window[onReadyCallback] = function () {
-                callback ? callback() : null;
-            };
 
             if (!options.apiConfig['base-hostname']) {
                 return console.error('Tumblr load() method needs to be passed a "base-hostname"');
@@ -37,9 +36,11 @@ define(function(require, exports, module) {
 
             options.scriptUrl = '//api.tumblr.com/v2/blog/' + options.apiConfig['base-hostname'] + '/?' +
             'api_key=' + options.apiConfig.api_key + '&' +
-            'callback=' + onReadyCallback;
+            'callback=' + this.onReadyCallback;
 
-            this.loadScript(document, options.scriptUrl, 'tumblr-lscript');
+            window[this.onReadyCallback] = this._triggerScriptLoaded.bind(this);
+
+            this.injectScript(options.scriptUrl, 'tumblr-lscript', callback);
         },
 
         /**
@@ -83,6 +84,6 @@ define(function(require, exports, module) {
 
     });
 
-    module.exports = window.SocialApi.Tumblr = Tumblr;
+    module.exports = window.SocialApi.Tumblr = new Tumblr();
 });
 
