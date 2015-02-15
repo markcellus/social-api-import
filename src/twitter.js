@@ -32,7 +32,7 @@ define(function(require, exports, module) {
                 t._e.push(f);
             };
             window.twttr = t;
-            this.loadScript(options.scriptUrl, 'twitter-wjs', function () {
+            this.injectScript(options.scriptUrl, 'twitter-wjs', function () {
                 callback ? callback(t) : null;
             });
             this._triggerScriptLoaded();

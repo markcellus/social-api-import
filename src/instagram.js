@@ -28,7 +28,7 @@ define(function(require, exports, module) {
                 apiConfig: {}
             }, options);
 
-            this.loadScript(options.scriptUrl, 'instagram-sdk', callback);
+            this.injectScript(options.scriptUrl, 'instagram-sdk', callback);
         }
 
     });
