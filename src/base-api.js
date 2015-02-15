@@ -61,13 +61,13 @@ BaseApi.prototype = {
             this.scriptEl = this.createScriptElement();
             this.scriptEl.id = id;
             this.scriptEl.src = path;
+            this.queueLoadListener(listener);
             this.scriptEl.onload = this.scriptEl.onreadystatechange = function () {
                 if (!this.readyState || this.readyState === 'complete') {
                     BaseApi.prototype._loadedScripts.push(sid);
                 }
             }.bind(this);
             document.getElementsByTagName('body')[0].appendChild(this.scriptEl);
-            this.queueLoadListener(listener);
         } else {
             listener ? listener() : null;
         }
