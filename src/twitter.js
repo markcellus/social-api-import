@@ -30,10 +30,20 @@ Twitter.prototype = Utils.extend({}, BaseApi.prototype, {
             t._e.push(f);
         };
         window.twttr = t;
-        this.injectScript(options.scriptUrl, 'twitter-wjs', function () {
-            callback ? callback(t) : null;
-        });
-        this._triggerScriptLoaded();
+        this.loadScript(options.scriptUrl, 'twitter-wjs', function () {
+            this.loadApi(callback);
+        }.bind(this));
+    },
+
+    /**
+     * Fires callback when API has been loaded.
+     * @param {Function} cb - The callback
+     * @private
+     */
+    _handleLoadApi: function (cb) {
+        var t = window.twttr;
+        t.widgets.load();
+        cb(t);
     }
 
 });

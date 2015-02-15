@@ -26,7 +26,9 @@ Instagram.prototype = Utils.extend({}, BaseApi.prototype, {
             apiConfig: {}
         }, options);
 
-        this.injectScript(options.scriptUrl, 'instagram-sdk', callback);
+        this.loadScript(options.scriptUrl, 'instagram-sdk', function () {
+            this.loadApi(callback);
+        }.bind(this));
     }
 
 });

@@ -37,9 +37,18 @@ Tumblr.prototype = Utils.extend({}, BaseApi.prototype, {
         'api_key=' + options.apiConfig.api_key + '&' +
         'callback=' + this.onReadyCallback;
 
-        window[this.onReadyCallback] = this._triggerScriptLoaded.bind(this);
+        this.loadScript(options.scriptUrl, 'tumblr-lscript', function () {
+            this.loadApi(callback);
+        }.bind(this));
+    },
 
-        this.injectScript(options.scriptUrl, 'tumblr-lscript', callback);
+    /**
+     * Fires callback when API has been loaded.
+     * @param {Function} cb - The callback
+     * @private
+     */
+    _handleLoadApi: function (cb) {
+        window[this.onReadyCallback] = cb;
     },
 
     /**

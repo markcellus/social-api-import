@@ -32,12 +32,21 @@ Facebook.prototype = Utils.extend({}, BaseApi.prototype, {
 
         this.options = options;
 
-        window.fbAsyncInit = function () {
-            FB.init(options.apiConfig);
-            this._triggerScriptLoaded(FB);
-        }.bind(this);
+        this.loadScript(options.scriptUrl, 'facebook-jssdk', function () {
+            this.loadApi(callback);
+        }.bind(this));
+    },
 
-        this.injectScript(options.scriptUrl, 'facebook-jssdk', callback);
+    /**
+     * Handles loading the API.
+     * @param cb
+     * @private
+     */
+    _handleLoadApi: function (cb) {
+        window.fbAsyncInit = function () {
+            FB.init(this.options.apiConfig);
+            cb(FB);
+        }.bind(this);
     }
 
 });

@@ -53,18 +53,18 @@ BaseApi.prototype = {
      * @param {Function} [listener] - The callback fired when the script finishes loading.
      * @abstract
      */
-    injectScript: function (path, id, listener) {
-        var sid = this._sid,
-            loaded = BaseApi.prototype._loadedScripts.indexOf(sid) !== -1;
-
-        if (!loaded) {
+    loadScript: function (path, id, listener) {
+        if (!this.isScriptLoaded()) {
+            // call loadApi() before script injection in case there are
+            // any event listeners in an implementation of the _handleLoadApi() method
+            this.loadApi();
             this.scriptEl = this.createScriptElement();
             this.scriptEl.id = id;
             this.scriptEl.src = path;
-            this.queueLoadListener(listener);
             this.scriptEl.onload = this.scriptEl.onreadystatechange = function () {
                 if (!this.readyState || this.readyState === 'complete') {
-                    BaseApi.prototype._loadedScripts.push(sid);
+                    BaseApi.prototype._loadedScripts.push(this._sid);
+                    listener ? listener() : null;
                 }
             }.bind(this);
             document.getElementsByTagName('body')[0].appendChild(this.scriptEl);
@@ -74,16 +74,41 @@ BaseApi.prototype = {
     },
 
     /**
-     * Function that should be fired when the script is loaded.
+     * Loads the API.
+     */
+    loadApi: function (listener) {
+        listener = listener || function () {};
+        if (this.isScriptLoaded()) {
+            listener.apply(this, this.loadedArgs);
+        } else {
+            this.queueLoadListener(listener);
+            this._handleLoadApi(this._triggerApiLoaded.bind(this));
+        }
+    },
+
+    /**
+     * A function that should be overridden that handles when the API is done loading.
+     * @param listener
+     * @private
+     * @abstract
+     */
+    _handleLoadApi: function (listener) {
+        listener ? listener() : null;
+    },
+
+    /**
+     * Function that should be fired when the API is loaded,
+     * causing all load listeners to be invoked.
      * @param {*} arguments - Any arguments to pass to listeners
      * @private
      * @abstract
      */
-    _triggerScriptLoaded: function () {
-        var args = arguments;
+    _triggerApiLoaded: function () {
+        this.loadedArgs = arguments;
         this._loadListeners.forEach(function (func) {
-            func.apply(this, args);
-        });
+            func.apply(this, this.loadedArgs);
+        }.bind(this));
+        this._apiLoaded = true;
     },
 
     /**
@@ -94,6 +119,21 @@ BaseApi.prototype = {
     createScriptElement: function () {
         return document.createElement('script');
     },
+    /**
+     * Whether the API has been loaded.
+     * @returns {boolean|*}
+     */
+    isApiLoaded: function () {
+        return this._apiLoaded;
+    },
+
+    /**
+     * Whether the script has been loaded.
+     * @returns {boolean}
+     */
+    isScriptLoaded: function () {
+        return BaseApi.prototype._loadedScripts.indexOf(this._sid) !== -1;
+    },
 
     /**
      * Adds a listener function be notified once the script has finished loading.
@@ -101,7 +141,7 @@ BaseApi.prototype = {
      */
     queueLoadListener: function (listener) {
         this._loadListeners = this._loadListeners || [];
-        if (listener) {
+        if (listener && this._loadListeners.indexOf(listener) === -1) {
             this._loadListeners.push(listener);
         }
     }
