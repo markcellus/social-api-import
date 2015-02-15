@@ -45,8 +45,9 @@ require([
 
     // load twitter
     var twFeedEl = document.getElementsByClassName('module-social-feed-twitter')[0];
-    Twitter.load(null, function () {
+    Twitter.load(null, function (t) {
         twFeedEl.innerHTML = '<a class="twitter-timeline" href="https://twitter.com/twitter" data-widget-id="561242832242241537">Tweets by @twitter</a>Tweets by @twitterdev</a>';
+        t.widgets.load(twFeedEl);
     });
 
     // load instagram
