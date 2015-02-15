@@ -42,6 +42,5 @@ var Utils = {
 };
 
 module.exports = Utils;
-return Utils;
 
 

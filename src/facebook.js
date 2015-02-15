@@ -1,4 +1,3 @@
-
 'use strict';
 
 var Utils = require('./utils');
@@ -44,6 +43,3 @@ Facebook.prototype = Utils.extend({}, BaseApi.prototype, {
 });
 
 module.exports = window.SocialApi.Facebook = new Facebook();
-
-
-

@@ -64,7 +64,7 @@ Tumblr.prototype = Utils.extend({}, BaseApi.prototype, {
         url += '?api_key=' + this.options.apiConfig.api_key + '&jsonp=';
 
         request.open('GET', url, true);
-        request.onload = function() {
+        request.onload = function () {
             if (request.status >= 200 && request.status < 400) {
                 // Success!
                 var data = JSON.parse(request.responseText);
@@ -84,4 +84,3 @@ Tumblr.prototype = Utils.extend({}, BaseApi.prototype, {
 });
 
 module.exports = window.SocialApi.Tumblr = new Tumblr();
-
