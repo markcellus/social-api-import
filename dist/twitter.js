@@ -65,7 +65,7 @@ BaseApi.prototype = {
      */
     loadScript: function (path, id, listener) {
         if (!this.isScriptLoaded()) {
-            if (listener) {
+            if (listener && this._scriptLoadListeners.indexOf(listener) === -1) {
                 this._scriptLoadListeners.push(listener);
             }
             this.scriptEl = this.createScriptElement();
@@ -77,6 +77,7 @@ BaseApi.prototype = {
                     this._scriptLoadListeners.forEach(function (func) {
                         func();
                     });
+                    this._scriptLoadListeners = [];
                 }
             }.bind(this);
             document.getElementsByTagName('body')[0].appendChild(this.scriptEl);
@@ -185,16 +186,14 @@ Twitter.prototype = Utils.extend({}, BaseApi.prototype, {
      */
     load: function (options, callback) {
 
+        var onReadyCallback = this.onReadyCallback = 'twittrOnReady';
+
         options = Utils.extend({
             scriptUrl: 'https://platform.twitter.com/widgets.js',
             apiConfig: {}
         }, options);
-        var t = window.twttr || {};
-        t.ready = function (f) {
-            t._e.push(f);
-        };
-        window.twttr = t;
-        this.loadScript(options.scriptUrl, 'twitter-wjs');
+
+        this.loadScript(options.scriptUrl, 'twitter-wjs', window[onReadyCallback]);
         this.loadApi(callback);
     },
 
@@ -204,9 +203,13 @@ Twitter.prototype = Utils.extend({}, BaseApi.prototype, {
      * @private
      */
     _handleLoadApi: function (cb) {
-        var t = window.twttr;
-        t.widgets.load();
-        cb(t);
+        window[this.onReadyCallback] = function () {
+            var t = window.twttr || {};
+            t.ready = function (f) {
+                t._e.push(f);
+            };
+            cb(t);
+        };
     }
 
 });
