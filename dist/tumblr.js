@@ -20,13 +20,10 @@ BaseApi.prototype = {
         BaseApi.prototype._scriptCount = BaseApi.prototype._scriptCount || 0;
         BaseApi.prototype._scriptCount++;
 
-        // keep track of loaded scripts
-        BaseApi.prototype._loadedScripts = BaseApi.prototype._loadedScripts || [];
         // set unique instance id
         this._sid = BaseApi.prototype._scriptCount;
 
         this._apiLoadListeners = this._apiLoadListeners || [];
-        this._scriptLoadListeners = this._scriptLoadListeners || [];
 
     },
 
@@ -50,11 +47,7 @@ BaseApi.prototype = {
         if (this.scriptEl.parentNode) {
             this.scriptEl.parentNode.removeChild(this.scriptEl);
         }
-        var index = BaseApi.prototype._loadedScripts.indexOf(this._sid);
-        if (index > -1) {
-            BaseApi.prototype._loadedScripts.splice(index, 1);
-        }
-        this._scriptLoadListeners = [];
+        this._scriptLoaded = false;
     },
 
     /**
@@ -65,26 +58,16 @@ BaseApi.prototype = {
      * @abstract
      */
     loadScript: function (path, id, listener) {
-        if (!this.isScriptLoaded()) {
-            if (listener && this._scriptLoadListeners.indexOf(listener) === -1) {
-                this._scriptLoadListeners.push(listener);
+        this.scriptEl = this.createScriptElement();
+        this.scriptEl.id = id;
+        this.scriptEl.src = path;
+        this.scriptEl.onload = this.scriptEl.onreadystatechange = function () {
+            if (!this.readyState || this.readyState === 'complete') {
+                this._scriptLoaded = true;
+                listener ? listener() : null;
             }
-            this.scriptEl = this.createScriptElement();
-            this.scriptEl.id = id;
-            this.scriptEl.src = path;
-            this.scriptEl.onload = this.scriptEl.onreadystatechange = function () {
-                if (!this.readyState || this.readyState === 'complete') {
-                    BaseApi.prototype._loadedScripts.push(this._sid);
-                    this._scriptLoadListeners.forEach(function (func) {
-                        func();
-                    });
-                    this._scriptLoadListeners = [];
-                }
-            }.bind(this);
-            document.getElementsByTagName('body')[0].appendChild(this.scriptEl);
-        } else {
-            listener ? listener() : null;
-        }
+        }.bind(this);
+        document.getElementsByTagName('body')[0].appendChild(this.scriptEl);
     },
     
     /**
@@ -92,7 +75,7 @@ BaseApi.prototype = {
      */
     loadApi: function (listener) {
         listener = listener || function () {};
-        if (this.isScriptLoaded()) {
+        if (this.getLoadStatus() === 'loaded') {
             listener.apply(this, this.loadedArgs);
         } else {
             this.queueLoadListener(listener);
@@ -142,21 +125,13 @@ BaseApi.prototype = {
      * @returns {string}
      */
     getLoadStatus: function () {
-        if (BaseApi.prototype._loadedScripts.indexOf(this._sid) === -1) {
+        if (!this._scriptLoaded) {
             return 'notLoaded';
         } else if (this._apiLoaded) {
             return 'loaded';
         } else {
             return 'loading';
         }
-    },
-
-    /**
-     * Whether the script has been loaded.
-     * @returns {boolean}
-     */
-    isScriptLoaded: function () {
-        return BaseApi.prototype._loadedScripts.indexOf(this._sid) !== -1;
     },
 
     /**
@@ -199,7 +174,7 @@ Tumblr.prototype = Utils.extend({}, BaseApi.prototype, {
     load: function (options, callback) {
         this.onReadyCallback = 'onTumblrReady';
 
-        this.options = options = Utils.extend({
+        options = Utils.extend({
             apiConfig: {}
         }, options);
 
@@ -209,11 +184,8 @@ Tumblr.prototype = Utils.extend({}, BaseApi.prototype, {
 
         options.apiConfig.api_key = options.apiConfig.api_key || '';
 
-        options.scriptUrl = '//api.tumblr.com/v2/blog/' + options.apiConfig['base-hostname'] + '/?' +
-        'api_key=' + options.apiConfig.api_key + '&' +
-        'callback=' + this.onReadyCallback;
+        this.options = options;
 
-        this.loadScript(options.scriptUrl, 'tumblr-lscript');
         this.loadApi(callback);
     },
 
@@ -223,7 +195,12 @@ Tumblr.prototype = Utils.extend({}, BaseApi.prototype, {
      * @private
      */
     _handleLoadApi: function (cb) {
+        var options = this.options;
+        options.scriptUrl = '//api.tumblr.com/v2/blog/' + options.apiConfig['base-hostname'] + '/?' +
+        'api_key=' + options.apiConfig.api_key + '&' +
+        'callback=' + this.onReadyCallback;
         window[this.onReadyCallback] = cb;
+        this.loadScript(options.scriptUrl, 'tumblr-lscript');
     },
 
     /**
