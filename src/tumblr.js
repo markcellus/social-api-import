@@ -7,7 +7,10 @@ var BaseApi = require('./base-api');
  * Tumblr API-loading class.
  * @class Tumblr
  */
-var Tumblr = Utils.extend({}, BaseApi, {
+var Tumblr = function () {
+    this.initialize();
+};
+Tumblr.prototype = Utils.extend({}, BaseApi.prototype, {
 
     /**
      * Loads the script to the API.
@@ -18,15 +21,11 @@ var Tumblr = Utils.extend({}, BaseApi, {
      * @param {Function} [callback] - Fires when the FB SDK has been loaded
      */
     load: function (options, callback) {
-        var onReadyCallback = 'onTumblrReady';
+        this.onReadyCallback = 'onTumblrReady';
 
         this.options = options = Utils.extend({
             apiConfig: {}
         }, options);
-
-        window[onReadyCallback] = function () {
-            callback ? callback() : null;
-        };
 
         if (!options.apiConfig['base-hostname']) {
             return console.error('Tumblr load() method needs to be passed a "base-hostname"');
@@ -36,9 +35,19 @@ var Tumblr = Utils.extend({}, BaseApi, {
 
         options.scriptUrl = '//api.tumblr.com/v2/blog/' + options.apiConfig['base-hostname'] + '/?' +
         'api_key=' + options.apiConfig.api_key + '&' +
-        'callback=' + onReadyCallback;
+        'callback=' + this.onReadyCallback;
 
-        this.loadScript(document, options.scriptUrl, 'tumblr-lscript');
+        this.loadScript(options.scriptUrl, 'tumblr-lscript');
+        this.loadApi(callback);
+    },
+
+    /**
+     * Fires callback when API has been loaded.
+     * @param {Function} cb - The callback
+     * @private
+     */
+    _handleLoadApi: function (cb) {
+        window[this.onReadyCallback] = cb;
     },
 
     /**
@@ -63,7 +72,7 @@ var Tumblr = Utils.extend({}, BaseApi, {
         url += '?api_key=' + this.options.apiConfig.api_key + '&jsonp=';
 
         request.open('GET', url, true);
-        request.onload = function() {
+        request.onload = function () {
             if (request.status >= 200 && request.status < 400) {
                 // Success!
                 var data = JSON.parse(request.responseText);
@@ -82,4 +91,4 @@ var Tumblr = Utils.extend({}, BaseApi, {
 
 });
 
-module.exports = window.SocialApi.Tumblr = Tumblr;
+module.exports = window.SocialApi.Tumblr = new Tumblr();

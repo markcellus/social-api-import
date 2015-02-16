@@ -7,7 +7,10 @@ var BaseApi = require('./base-api');
  * Twitter API-loading class.
  * @class Twitter
  */
-var Twitter = Utils.extend({}, BaseApi, {
+var Twitter = function () {
+    this.initialize();
+};
+Twitter.prototype = Utils.extend({}, BaseApi.prototype, {
 
     /**
      * Loads the script to the API and returns the FB object.
@@ -18,20 +21,28 @@ var Twitter = Utils.extend({}, BaseApi, {
      */
     load: function (options, callback) {
 
-        options = Utils.extend({
+        this.options = Utils.extend({
             scriptUrl: 'https://platform.twitter.com/widgets.js',
             apiConfig: {}
         }, options);
-        var t = window.twttr || {};
-        t.ready = function(f) {
-            t._e.push(f);
-        };
-        window.twttr = t;
-        this.loadScript(document, options.scriptUrl, 'twitter-wjs', function () {
-            callback ? callback(t) : null;
+        this.loadApi(callback);
+    },
+
+    /**
+     * Fires callback when API has been loaded.
+     * @param {Function} cb - The callback
+     * @private
+     */
+    _handleLoadApi: function (cb) {
+        this.loadScript(this.options.scriptUrl, 'twitter-wjs', function () {
+            var t = window.twttr || {};
+            t.ready = function (f) {
+                t._e.push(f);
+            };
+            cb(t);
         });
     }
 
 });
 
-module.exports = window.SocialApi.Twitter = Twitter;
+module.exports = window.SocialApi.Twitter = new Twitter();

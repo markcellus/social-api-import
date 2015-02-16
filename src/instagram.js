@@ -7,7 +7,10 @@ var BaseApi = require('./base-api');
  * Instagram API-loading class.
  * @class Instagram
  */
-var Instagram = Utils.extend({}, BaseApi, {
+var Instagram = function () {
+    this.initialize();
+};
+Instagram.prototype = Utils.extend({}, BaseApi.prototype, {
 
     /**
      * Loads the script to the API and returns the FB object.
@@ -23,9 +26,10 @@ var Instagram = Utils.extend({}, BaseApi, {
             apiConfig: {}
         }, options);
 
-        this.loadScript(document, options.scriptUrl, 'instagram-sdk', callback);
+        this.loadScript(options.scriptUrl, 'instagram-sdk');
+        this.loadApi(callback);
     }
 
 });
 
-module.exports = window.SocialApi.Instagram = Instagram;
+module.exports = window.SocialApi.Instagram = new Instagram();
