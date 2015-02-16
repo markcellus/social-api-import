@@ -48,9 +48,8 @@ Tumblr.prototype = Utils.extend({}, BaseApi.prototype, {
         options.scriptUrl = '//api.tumblr.com/v2/blog/' + options.apiConfig['base-hostname'] + '/?' +
         'api_key=' + options.apiConfig.api_key + '&' +
         'callback=' + this.onReadyCallback;
-        this.loadScript(options.scriptUrl, 'tumblr-lscript', function () {
-            window[this.onReadyCallback] = cb;
-        }.bind(this));
+        window[this.onReadyCallback] = cb;
+        this.loadScript(options.scriptUrl, 'tumblr-lscript');
     },
 
     /**
