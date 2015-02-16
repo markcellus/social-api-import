@@ -33,7 +33,8 @@ gulp.task('build-tests', function() {
     return gulp.src([
         'tumblr-tests.js',
         'facebook-tests.js',
-        'base-api-tests.js'
+        'base-api-tests.js',
+        'twitter-tests.js'
     ], {cwd: 'tests'})
         .pipe(concat('built-tests.js'))
         .pipe(browserify())
