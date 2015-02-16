@@ -7,7 +7,11 @@ var BaseApi = require('./base-api');
  * Facebook API class.
  * @class Facebook
  */
-var Facebook = Utils.extend({}, BaseApi, {
+var Facebook = function () {
+    this.initialize();
+};
+
+Facebook.prototype = Utils.extend({}, BaseApi.prototype, {
 
     /**
      * Loads the script to the API and returns the FB object.
@@ -26,16 +30,24 @@ var Facebook = Utils.extend({}, BaseApi, {
         options.apiConfig.version = options.apiConfig.version || 'v2.1';
         options.apiConfig.xfbml = options.apiConfig.xfbml || true;
 
-        window.fbAsyncInit = function() {
-            FB.init(options.apiConfig);
-            callback ? callback(FB) : null;
-        };
-        this.loadScript(document, options.scriptUrl, 'facebook-jssdk');
+        this.options = options;
+
+        this.loadScript(options.scriptUrl, 'facebook-jssdk');
+        this.loadApi(callback);
+    },
+
+    /**
+     * Handles loading the API.
+     * @param cb
+     * @private
+     */
+    _handleLoadApi: function (cb) {
+        window.fbAsyncInit = function () {
+            FB.init(this.options.apiConfig);
+            cb(FB);
+        }.bind(this);
     }
 
 });
 
-module.exports = window.SocialApi.Facebook = Facebook;
-
-
-
+module.exports = window.SocialApi.Facebook = new Facebook();

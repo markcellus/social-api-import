@@ -1,4 +1,4 @@
-(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 'use strict';
 
 /**
@@ -7,7 +7,28 @@
  */
 window.SocialApi = window.SocialApi || {};
 
-var BaseApi = {
+var BaseApi = function () {
+    this.initialize();
+};
+
+BaseApi.prototype = {
+
+    /**
+     * When the API is instantiated.
+     */
+    initialize: function () {
+        BaseApi.prototype._scriptCount = BaseApi.prototype._scriptCount || 0;
+        BaseApi.prototype._scriptCount++;
+
+        // keep track of loaded scripts
+        BaseApi.prototype._loadedScripts = BaseApi.prototype._loadedScripts || [];
+        // set unique instance id
+        this._sid = BaseApi.prototype._scriptCount;
+
+        this._apiLoadListeners = this._apiLoadListeners || [];
+        this._scriptLoadListeners = this._scriptLoadListeners || [];
+
+    },
 
     /**
      * Loads the script to the API.
@@ -22,33 +43,135 @@ var BaseApi = {
     },
 
     /**
-     * Loads the javascript file for the API.
-     * @param {HTMLElement} el - The element of which to attach the script element
-     * @param {string} path - The value that is added as the src path to the script
-     * @param {string} id - The unique id attribute that will be added to the script tag
-     * @param {Function} [callback] - The callback fired when the script finishes loading.
+     * Removes the script from the DOM.
      * @abstract
      */
-    loadScript: function (el, path, id, callback) {
-        var scriptEl,
-            parentEl = el.getElementsByTagName('script')[0],
-            loaded = false;
-        if (!el.querySelector('#' + id)) {
-            scriptEl = document.createElement('script');
-            scriptEl.id = id;
-            scriptEl.src = path;
-            scriptEl.onload = scriptEl.onreadystatechange = function () {
-                if (!loaded && (!this.readyState || this.readyState === 'complete')) {
-                    loaded = true;
-                    callback ? callback() : null;
+    unload: function () {
+        if (this.scriptEl.parentNode) {
+            this.scriptEl.parentNode.removeChild(this.scriptEl);
+        }
+        var index = BaseApi.prototype._loadedScripts.indexOf(this._sid);
+        if (index > -1) {
+            BaseApi.prototype._loadedScripts.splice(index, 1);
+        }
+        this._scriptLoadListeners = [];
+    },
+
+    /**
+     * Injects the Script into the DOM.
+     * @param {string} path - The value that is added as the src path to the script
+     * @param {string} id - The unique id attribute that will be added to the script tag
+     * @param {Function} [listener] - The callback fired when the script finishes loading.
+     * @abstract
+     */
+    loadScript: function (path, id, listener) {
+        if (!this.isScriptLoaded()) {
+            if (listener && this._scriptLoadListeners.indexOf(listener) === -1) {
+                this._scriptLoadListeners.push(listener);
+            }
+            this.scriptEl = this.createScriptElement();
+            this.scriptEl.id = id;
+            this.scriptEl.src = path;
+            this.scriptEl.onload = this.scriptEl.onreadystatechange = function () {
+                if (!this.readyState || this.readyState === 'complete') {
+                    BaseApi.prototype._loadedScripts.push(this._sid);
+                    this._scriptLoadListeners.forEach(function (func) {
+                        func();
+                    });
+                    this._scriptLoadListeners = [];
                 }
-            };
-            parentEl.parentNode.insertBefore(scriptEl, parentEl);
+            }.bind(this);
+            document.getElementsByTagName('body')[0].appendChild(this.scriptEl);
+        } else {
+            listener ? listener() : null;
+        }
+    },
+    
+    /**
+     * Loads the API.
+     */
+    loadApi: function (listener) {
+        listener = listener || function () {};
+        if (this.isScriptLoaded()) {
+            listener.apply(this, this.loadedArgs);
+        } else {
+            this.queueLoadListener(listener);
+        }
+        if (this.getLoadStatus() === 'notLoaded') {
+            this._handleLoadApi(this._triggerApiLoaded.bind(this));
+        }
+    },
+
+    /**
+     * A function that should be overridden that handles when the API is done loading.
+     * @param listener
+     * @private
+     * @abstract
+     */
+    _handleLoadApi: function (listener) {
+        listener ? listener() : null;
+    },
+
+    /**
+     * Function that should be fired when the API is loaded,
+     * causing all load listeners to be invoked.
+     * @param {*} arguments - Any arguments to pass to listeners
+     * @private
+     * @abstract
+     */
+    _triggerApiLoaded: function () {
+        this.loadedArgs = arguments;
+        this._apiLoadListeners.forEach(function (func) {
+            func.apply(this, this.loadedArgs);
+        }.bind(this));
+        this._apiLoadListeners = [];
+        this._apiLoaded = true;
+    },
+
+    /**
+     * Creates a new script element.
+     * Primarily here for unit tests.
+     * @returns {HTMLElement}
+     */
+    createScriptElement: function () {
+        return document.createElement('script');
+    },
+
+    /**
+     * Gets the load status.
+     * @returns {string}
+     */
+    getLoadStatus: function () {
+        if (BaseApi.prototype._loadedScripts.indexOf(this._sid) === -1) {
+            return 'notLoaded';
+        } else if (this._apiLoaded) {
+            return 'loaded';
+        } else {
+            return 'loading';
+        }
+    },
+
+    /**
+     * Whether the script has been loaded.
+     * @returns {boolean}
+     */
+    isScriptLoaded: function () {
+        return BaseApi.prototype._loadedScripts.indexOf(this._sid) !== -1;
+    },
+
+    /**
+     * Adds a listener function be notified once the script has finished loading.
+     * @param {Function} listener - The listener function
+     */
+    queueLoadListener: function (listener) {
+        if (listener && this._apiLoadListeners.indexOf(listener) === -1) {
+            this._apiLoadListeners.push(listener);
         }
     }
 };
 
 module.exports = BaseApi;
+
 
 },{}],2:[function(require,module,exports){
 'use strict';
@@ -60,7 +183,10 @@ var BaseApi = require('./base-api');
  * Instagram API-loading class.
  * @class Instagram
  */
-var Instagram = Utils.extend({}, BaseApi, {
+var Instagram = function () {
+    this.initialize();
+};
+Instagram.prototype = Utils.extend({}, BaseApi.prototype, {
 
     /**
      * Loads the script to the API and returns the FB object.
@@ -76,12 +202,13 @@ var Instagram = Utils.extend({}, BaseApi, {
             apiConfig: {}
         }, options);
 
-        this.loadScript(document, options.scriptUrl, 'instagram-sdk', callback);
+        this.loadScript(options.scriptUrl, 'instagram-sdk');
+        this.loadApi(callback);
     }
 
 });
 
-module.exports = window.SocialApi.Instagram = Instagram;
+module.exports = window.SocialApi.Instagram = new Instagram();
 },{"./base-api":1,"./utils":3}],3:[function(require,module,exports){
 'use strict';
 /**
@@ -128,4 +255,6 @@ var Utils = {
 
 module.exports = Utils;
 
-},{}]},{},[2]);
+
+
+},{}]},{},[2])
