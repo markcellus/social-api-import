@@ -41,12 +41,11 @@ Facebook.prototype = Utils.extend({}, BaseApi.prototype, {
      * @private
      */
     _handleLoadApi: function (cb) {
-        this.loadScript(this.options.scriptUrl, 'facebook-jssdk', function () {
-            window.fbAsyncInit = function () {
-                FB.init(this.options.apiConfig);
-                cb(FB);
-            }.bind(this);
-        }.bind(this));
+        window.fbAsyncInit = function () {
+            FB.init(this.options.apiConfig);
+            cb(FB);
+        }.bind(this);
+        this.loadScript(this.options.scriptUrl, 'facebook-jssdk');
     }
 
 });
