@@ -23,7 +23,7 @@ Tumblr.prototype = Utils.extend({}, BaseApi.prototype, {
     load: function (options, callback) {
         this.onReadyCallback = 'onTumblrReady';
 
-        this.options = options = Utils.extend({
+        options = Utils.extend({
             apiConfig: {}
         }, options);
 
@@ -33,11 +33,8 @@ Tumblr.prototype = Utils.extend({}, BaseApi.prototype, {
 
         options.apiConfig.api_key = options.apiConfig.api_key || '';
 
-        options.scriptUrl = '//api.tumblr.com/v2/blog/' + options.apiConfig['base-hostname'] + '/?' +
-        'api_key=' + options.apiConfig.api_key + '&' +
-        'callback=' + this.onReadyCallback;
+        this.options = options;
 
-        this.loadScript(options.scriptUrl, 'tumblr-lscript');
         this.loadApi(callback);
     },
 
@@ -47,7 +44,13 @@ Tumblr.prototype = Utils.extend({}, BaseApi.prototype, {
      * @private
      */
     _handleLoadApi: function (cb) {
-        window[this.onReadyCallback] = cb;
+        var options = this.options;
+        options.scriptUrl = '//api.tumblr.com/v2/blog/' + options.apiConfig['base-hostname'] + '/?' +
+        'api_key=' + options.apiConfig.api_key + '&' +
+        'callback=' + this.onReadyCallback;
+        this.loadScript(options.scriptUrl, 'tumblr-lscript', function () {
+            window[this.onReadyCallback] = cb;
+        }.bind(this));
     },
 
     /**
