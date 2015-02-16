@@ -29,4 +29,20 @@ describe('Base API', function () {
         assert.equal(document.querySelectorAll('#' + id).length, 0, 'after unload(), script is no longer in DOM');
         createScriptElementStub.restore();
     });
+
+    it('passing same script loading listener should only fire it once', function () {
+        var mockScriptEl = document.createElement('script');
+        var createScriptElementStub = sinon.stub(BaseApi.prototype, 'createScriptElement').returns(mockScriptEl);
+        var baseApi = new BaseApi();
+        var id = 'myScript0';
+        var filePath =  'path/to/my/script.js';
+        var cbSpy = sinon.spy();
+        baseApi.loadScript(filePath, id, cbSpy);
+        baseApi.loadScript(filePath, id, cbSpy);
+        assert.equal(cbSpy.callCount, 0, 'callback is NOT triggered because script hasnt yet loaded');
+        mockScriptEl.onload(); // trigger script injection complete
+        assert.equal(cbSpy.callCount, 1, 'once script is loaded, callback is only triggered once');
+        baseApi.unload();
+        createScriptElementStub.restore();
+    });
 });

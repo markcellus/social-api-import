@@ -64,7 +64,7 @@ BaseApi.prototype = {
      */
     loadScript: function (path, id, listener) {
         if (!this.isScriptLoaded()) {
-            if (listener) {
+            if (listener && this._scriptLoadListeners.indexOf(listener) === -1) {
                 this._scriptLoadListeners.push(listener);
             }
             this.scriptEl = this.createScriptElement();
@@ -76,6 +76,7 @@ BaseApi.prototype = {
                     this._scriptLoadListeners.forEach(function (func) {
                         func();
                     });
+                    this._scriptLoadListeners = [];
                 }
             }.bind(this);
             document.getElementsByTagName('body')[0].appendChild(this.scriptEl);
