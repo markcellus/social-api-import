@@ -32,7 +32,6 @@ Facebook.prototype = Utils.extend({}, BaseApi.prototype, {
 
         this.options = options;
 
-        this.loadScript(options.scriptUrl, 'facebook-jssdk');
         this.loadApi(callback);
     },
 
@@ -42,10 +41,12 @@ Facebook.prototype = Utils.extend({}, BaseApi.prototype, {
      * @private
      */
     _handleLoadApi: function (cb) {
-        window.fbAsyncInit = function () {
-            FB.init(this.options.apiConfig);
-            cb(FB);
-        }.bind(this);
+        this.loadScript(this.options.scriptUrl, 'facebook-jssdk', function () {
+            window.fbAsyncInit = function () {
+                FB.init(this.options.apiConfig);
+                cb(FB);
+            }.bind(this);
+        }.bind(this));
     }
 
 });
