@@ -5,7 +5,7 @@
     "name": "Mark Kennedy",
     "url": "http://heyimmark.com"
   },
-  "description": "Client-side social network API middleware",
+  "description": "Social network API library",
   "repository": {
     "type": "git",
     "url": "https://github.com/mkay581/social-api.git"
@@ -13,7 +13,11 @@
   "keywords": [
     "social",
     "social network api",
-    "social api"
+    "social api",
+    "twitter api",
+    "tumblr api",
+    "instagram api",
+    "facebook api"
   ],
   "devDependencies": {
     "del": "^1.1.1",
