@@ -30,9 +30,8 @@ Twitter.prototype = Utils.extend({}, BaseApi.prototype, {
             t._e.push(f);
         };
         window.twttr = t;
-        this.loadScript(options.scriptUrl, 'twitter-wjs', function () {
-            this.loadApi(callback);
-        }.bind(this));
+        this.loadScript(options.scriptUrl, 'twitter-wjs');
+        this.loadApi(callback);
     },
 
     /**

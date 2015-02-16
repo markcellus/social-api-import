@@ -37,9 +37,8 @@ Tumblr.prototype = Utils.extend({}, BaseApi.prototype, {
         'api_key=' + options.apiConfig.api_key + '&' +
         'callback=' + this.onReadyCallback;
 
-        this.loadScript(options.scriptUrl, 'tumblr-lscript', function () {
-            this.loadApi(callback);
-        }.bind(this));
+        this.loadScript(options.scriptUrl, 'tumblr-lscript');
+        this.loadApi(callback);
     },
 
     /**

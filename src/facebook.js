@@ -32,9 +32,8 @@ Facebook.prototype = Utils.extend({}, BaseApi.prototype, {
 
         this.options = options;
 
-        this.loadScript(options.scriptUrl, 'facebook-jssdk', function () {
-            this.loadApi(callback);
-        }.bind(this));
+        this.loadScript(options.scriptUrl, 'facebook-jssdk');
+        this.loadApi(callback);
     },
 
     /**

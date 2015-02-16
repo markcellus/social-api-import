@@ -1,52 +1,39 @@
-define([
-    'sinon',
-    'qunit',
-    'test-utils',
-    'src/facebook'
-], function(
-    Sinon,
-    QUnit,
-    TestUtils,
-    Facebook
-){
-    "use strict";
+var sinon = require('sinon');
+var assert = require('assert');
+var Facebook = require('./../src/facebook');
 
-    QUnit.module('Facebook Tests');
-
-
-    QUnit.test('loading the script and retrieving FB object', function () {
-        QUnit.expect(9);
+describe('Facebook', function () {
+    it('should load the script and hoist FB object', function () {
         var loadOptions = {
             apiConfig: {
                 appId: 'your-app-id'
             }
         };
-        var callbackSpy = Sinon.spy();
-        var scriptsParentNode = document.createElement('div');
+        var callbackSpy = sinon.spy();
         // setup html facebook expects
         var scriptEl = document.createElement('script');
-        scriptsParentNode.appendChild(scriptEl);
-        var getElementsByTagNameStub = Sinon.stub(document, 'getElementsByTagName').returns([scriptEl]);
+        var createScriptElementStub = sinon.stub(Facebook, 'createScriptElement').returns(scriptEl);
         var origFB = window.FB;
-        window.FB = {init: Sinon.spy()};
-        QUnit.ok(!scriptsParentNode.querySelector('#facebook-jssdk'), 'facebook script is NOT in the DOM because load hasnt been called');
+        window.FB = {init: sinon.spy()};
+        assert.ok(!document.querySelector('#facebook-jssdk'), 'facebook script is NOT in the DOM because load hasnt been called');
         Facebook.load(loadOptions, callbackSpy);
-        QUnit.ok(scriptsParentNode.querySelector('#facebook-jssdk'), 'facebook script is in the DOM when load is called');
-        QUnit.equal(scriptsParentNode.querySelector('#facebook-jssdk').getAttribute('src'), '//connect.facebook.net/en_US/sdk.js', 'script url is defaulted to correct path');
-        QUnit.equal(callbackSpy.callCount, 0, 'callback is NOT fired yet because facebook hasnt loaded');
-        QUnit.equal(window.FB.init.callCount, 0, 'FB.init() was NOT yet called');
+        assert.ok(document.querySelector('#facebook-jssdk'), 'facebook script is in the DOM when load is called');
+        assert.equal(document.querySelector('#facebook-jssdk').getAttribute('src'), '//connect.facebook.net/en_US/sdk.js', 'script url is defaulted to correct path');
+        assert.equal(callbackSpy.callCount, 0, 'callback is NOT fired yet because facebook hasnt loaded');
+        assert.equal(window.FB.init.callCount, 0, 'FB.init() was NOT yet called');
+        scriptEl.onload(); // trigger script load
         window.fbAsyncInit(); // trigger fb load
-        QUnit.deepEqual(callbackSpy.args[0], [window.FB], 'callback is fired with the FB object when facebook is loaded');
+        assert.deepEqual(callbackSpy.args[0], [window.FB], 'callback is fired with the FB object when facebook is loaded');
         var FBInitOptions = window.FB.init.args[0][0];
-        QUnit.equal(FBInitOptions.appId, loadOptions.apiConfig.appId, 'FB.init() is called with supplied appId');
-        QUnit.equal(FBInitOptions.xfbml, true, 'object passed FB.init() includes xfbml property set to "true"');
-        QUnit.equal(FBInitOptions.version, 'v2.1', 'object passed FB.init() includes version set to "v2.1"');
-        getElementsByTagNameStub.restore();
+        assert.equal(FBInitOptions.appId, loadOptions.apiConfig.appId, 'FB.init() is called with supplied appId');
+        assert.equal(FBInitOptions.xfbml, true, 'object passed FB.init() includes xfbml property set to "true"');
+        assert.equal(FBInitOptions.version, 'v2.1', 'object passed FB.init() includes version set to "v2.1"');
+        Facebook.unload();
+        createScriptElementStub.restore();
         window.FB = origFB;
     });
 
-    QUnit.test('loading the script with custom options', function () {
-        QUnit.expect(1);
+    it('should load the script with custom options', function () {
         var loadOptions = {
             apiConfig: {
                 appId: 'your-app-id',
@@ -55,16 +42,16 @@ define([
             },
             scriptUrl: 'my-script.js'
         };
-        var scriptsParentNode = document.createElement('div');
         var scriptEl = document.createElement('script');
-        scriptsParentNode.appendChild(scriptEl);
-        var getElementsByTagNameStub = Sinon.stub(document, 'getElementsByTagName').returns([scriptEl]);
+        var createScriptElementStub = sinon.stub(Facebook, 'createScriptElement').returns(scriptEl);
         var origFB = window.FB;
-        window.FB = {init: Sinon.spy()};
+        window.FB = {init: sinon.spy()};
         Facebook.load(loadOptions);
+        scriptEl.onload(); // trigger script load
         window.fbAsyncInit(); // trigger fb load
-        QUnit.deepEqual(window.FB.init.args[0], [loadOptions.apiConfig], 'after calling load(), FB.init() is called with correct api configuration object with custom options');
-        getElementsByTagNameStub.restore();
+        assert.deepEqual(window.FB.init.args[0], [loadOptions.apiConfig], 'after calling load(), FB.init() is called with correct api configuration object with custom options');
+        Facebook.unload();
+        createScriptElementStub.restore();
         window.FB = origFB;
     });
 });

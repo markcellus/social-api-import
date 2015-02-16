@@ -24,6 +24,9 @@ BaseApi.prototype = {
         // set unique instance id
         this._sid = BaseApi.prototype._scriptCount;
 
+        this._apiLoadListeners = this._apiLoadListeners || [];
+        this._scriptLoadListeners = this._scriptLoadListeners || [];
+
     },
 
     /**
@@ -43,7 +46,13 @@ BaseApi.prototype = {
      * @abstract
      */
     unload: function () {
-        this.scriptEl.parentNode.removeChild(this.scriptEl);
+        if (this.scriptEl.parentNode) {
+            this.scriptEl.parentNode.removeChild(this.scriptEl);
+        }
+        var index = BaseApi.prototype._loadedScripts.indexOf(this._sid);
+        if (index > -1) {
+            BaseApi.prototype._loadedScripts.splice(index, 1);
+        }
     },
 
     /**
@@ -55,16 +64,18 @@ BaseApi.prototype = {
      */
     loadScript: function (path, id, listener) {
         if (!this.isScriptLoaded()) {
-            // call loadApi() before script injection in case there are
-            // any event listeners in an implementation of the _handleLoadApi() method
-            this.loadApi();
+            if (listener) {
+                this._scriptLoadListeners.push(listener);
+            }
             this.scriptEl = this.createScriptElement();
             this.scriptEl.id = id;
             this.scriptEl.src = path;
             this.scriptEl.onload = this.scriptEl.onreadystatechange = function () {
                 if (!this.readyState || this.readyState === 'complete') {
                     BaseApi.prototype._loadedScripts.push(this._sid);
-                    listener ? listener() : null;
+                    this._scriptLoadListeners.forEach(function (func) {
+                        func();
+                    });
                 }
             }.bind(this);
             document.getElementsByTagName('body')[0].appendChild(this.scriptEl);
@@ -72,7 +83,7 @@ BaseApi.prototype = {
             listener ? listener() : null;
         }
     },
-
+    
     /**
      * Loads the API.
      */
@@ -105,7 +116,7 @@ BaseApi.prototype = {
      */
     _triggerApiLoaded: function () {
         this.loadedArgs = arguments;
-        this._loadListeners.forEach(function (func) {
+        this._apiLoadListeners.forEach(function (func) {
             func.apply(this, this.loadedArgs);
         }.bind(this));
         this._apiLoaded = true;
@@ -140,9 +151,8 @@ BaseApi.prototype = {
      * @param {Function} listener - The listener function
      */
     queueLoadListener: function (listener) {
-        this._loadListeners = this._loadListeners || [];
-        if (listener && this._loadListeners.indexOf(listener) === -1) {
-            this._loadListeners.push(listener);
+        if (listener && this._apiLoadListeners.indexOf(listener) === -1) {
+            this._apiLoadListeners.push(listener);
         }
     }
 };
