@@ -21,14 +21,10 @@ Twitter.prototype = Utils.extend({}, BaseApi.prototype, {
      */
     load: function (options, callback) {
 
-        var onReadyCallback = this.onReadyCallback = 'twittrOnReady';
-
-        options = Utils.extend({
+        this.options = Utils.extend({
             scriptUrl: 'https://platform.twitter.com/widgets.js',
             apiConfig: {}
         }, options);
-
-        this.loadScript(options.scriptUrl, 'twitter-wjs', window[onReadyCallback]);
         this.loadApi(callback);
     },
 
@@ -38,13 +34,13 @@ Twitter.prototype = Utils.extend({}, BaseApi.prototype, {
      * @private
      */
     _handleLoadApi: function (cb) {
-        window[this.onReadyCallback] = function () {
+        this.loadScript(this.options.scriptUrl, 'twitter-wjs', function () {
             var t = window.twttr || {};
             t.ready = function (f) {
                 t._e.push(f);
             };
             cb(t);
-        };
+        });
     }
 
 });
