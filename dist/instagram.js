@@ -54,6 +54,7 @@ BaseApi.prototype = {
         if (index > -1) {
             BaseApi.prototype._loadedScripts.splice(index, 1);
         }
+        this._scriptLoadListeners = [];
     },
 
     /**
@@ -95,6 +96,8 @@ BaseApi.prototype = {
             listener.apply(this, this.loadedArgs);
         } else {
             this.queueLoadListener(listener);
+        }
+        if (this.getLoadStatus() === 'notLoaded') {
             this._handleLoadApi(this._triggerApiLoaded.bind(this));
         }
     },
@@ -121,6 +124,7 @@ BaseApi.prototype = {
         this._apiLoadListeners.forEach(function (func) {
             func.apply(this, this.loadedArgs);
         }.bind(this));
+        this._apiLoadListeners = [];
         this._apiLoaded = true;
     },
 
@@ -132,12 +136,19 @@ BaseApi.prototype = {
     createScriptElement: function () {
         return document.createElement('script');
     },
+
     /**
-     * Whether the API has been loaded.
-     * @returns {boolean|*}
+     * Gets the load status.
+     * @returns {string}
      */
-    isApiLoaded: function () {
-        return this._apiLoaded;
+    getLoadStatus: function () {
+        if (BaseApi.prototype._loadedScripts.indexOf(this._sid) === -1) {
+            return 'notLoaded';
+        } else if (this._apiLoaded) {
+            return 'loaded';
+        } else {
+            return 'loading';
+        }
     },
 
     /**
