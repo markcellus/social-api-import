@@ -5,13 +5,15 @@ var mocha = require('gulp-mocha');
 var mochaPhantomJS = require('gulp-mocha-phantomjs');
 var copy = require('gulp-copy');
 var concat = require('gulp-concat');
+var connect = require('gulp-connect');
 
 var paths = {
     src: [
         'src/facebook.js',
         'src/tumblr.js',
         'src/twitter.js',
-        'src/instagram.js'
+        'src/instagram.js',
+        'src/vine.js'
     ]
 };
 
@@ -40,10 +42,15 @@ gulp.task('build-tests', function() {
         .pipe(gulp.dest('tests'));
 });
 
-
 gulp.task('build', function() {
     del(['dist']);
     return gulp.src(paths.src)
         .pipe(browserify())
         .pipe(gulp.dest('dist'));
+});
+
+gulp.task('server', function() {
+    connect.server({
+        livereload: true
+    });
 });

@@ -3,7 +3,8 @@ requirejs.config({
         facebook: '../dist/facebook',
         twitter: '../dist/twitter',
         instagram: '../dist/instagram',
-        tumblr: '../dist/tumblr'
+        tumblr: '../dist/tumblr',
+        vine: '../dist/vine'
     },
     shim: {
         facebook: {
@@ -17,6 +18,9 @@ requirejs.config({
         },
         tumblr: {
             exports: 'SocialApi.Tumblr'
+        },
+        vine: {
+            exports: 'SocialApi.Vine'
         }
     }
 });
@@ -26,12 +30,14 @@ require([
     'facebook',
     'twitter',
     'instagram',
-    'tumblr'
+    'tumblr',
+    'vine'
 ], function (
     Facebook,
     Twitter,
     Instagram,
-    Tumblr
+    Tumblr,
+    Vine
 ) {
 
     // load facebook
@@ -69,6 +75,12 @@ require([
             function (html) {
             tumblrFeedEl.innerHTML = html;
         });
+    });
+
+    // load vine
+    var vineFeedEl = document.getElementsByClassName('module-social-feed-vine')[0];
+    Vine.load(null, function () {
+        vineFeedEl.innerHTML = '<iframe class="vine-embed" src="https://vine.co/v/Ml16lZVTTxe/embed/simple" width="600" height="600" frameborder="0"></iframe>';
     });
 
 });
