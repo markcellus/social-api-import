@@ -1,11 +1,11 @@
 {
   "name": "social-api",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "author": {
     "name": "Mark Kennedy",
     "url": "http://heyimmark.com"
   },
-  "description": "Client-side social network API middleware",
+  "description": "Social network API library",
   "repository": {
     "type": "git",
     "url": "https://github.com/mkay581/social-api.git"
@@ -13,7 +13,11 @@
   "keywords": [
     "social",
     "social network api",
-    "social api"
+    "social api",
+    "twitter api",
+    "tumblr api",
+    "instagram api",
+    "facebook api"
   ],
   "devDependencies": {
     "del": "^1.1.1",
@@ -27,6 +31,7 @@
     "gulp-browserify": "^0.5.1",
     "gulp-clean": "^0.3.1",
     "gulp-concat": "^2.5.0",
+    "gulp-connect": "^2.2.0",
     "gulp-copy": "0.0.2",
     "gulp-mocha": "^2.0.0",
     "gulp-mocha-phantomjs": "^0.5.3",
