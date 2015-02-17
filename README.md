@@ -11,8 +11,7 @@ Supports the following APIs:
 * Tumblr
 * Twitter
 * Instagram
-
-With more coming soon.
+* Vine
 
 ## Dependencies
 
@@ -68,7 +67,9 @@ Instagram.load({}, function () {
 ### Vine
 
 ```javascript
+var el = document.getElementsByTagName('div')[0];
 Vine.load({}, function () {
-    // API loaded!
+    // API loaded! Show an embed
+    el.innerHTML = '<iframe class="vine-embed" src="https://vine.co/v/sf90dfs/embed/simple" width="600" height="600" frameborder="0"></iframe>';
 });
 ```
