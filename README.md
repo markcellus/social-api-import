@@ -37,7 +37,7 @@ Facebook.load(options, function (FB) {
 ### Twitter
 
 ```javascript
-Twitter.load({}, function (FB) {
+Twitter.load({}, function (twttr) {
     // API loaded! Now, do something with the twitter object
     console.log(twttr);
 });
@@ -52,7 +52,7 @@ var options = {
      'base-hostname': 'janey-smith.tumblr.com'
  }
 };
-Tumblr.load(options, function (FB) {
+Tumblr.load(options, function () {
     // API loaded!
 });
 ```
@@ -60,7 +60,15 @@ Tumblr.load(options, function (FB) {
 ### Instagram
 
 ```javascript
-Instagram.load({}, function (FB) {
+Instagram.load({}, function () {
+    // API loaded!
+});
+```
+
+### Vine
+
+```javascript
+Vine.load({}, function () {
     // API loaded!
 });
 ```
