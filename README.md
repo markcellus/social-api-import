@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/mkay581/social-api.svg?branch=master)](https://travis-ci.org/mkay581/social-api)
+
 # Social API
 
 A library that allows a common JS interface to load all social network APIs dynamically. It offers the ability to

@@ -1,6 +1,6 @@
 {
   "name": "social-api",
-  "version": "0.0.1",
+  "version": "0.2.0",
   "homepage": "https://github.com/mkay581/social-api",
   "authors": [
     "Mark Kennedy <mkay581@gmail.com>"
@@ -15,10 +15,17 @@
     "social",
     "social network api",
     "social api",
+    "twitter",
     "twitter api",
+    "tumblr",
     "tumblr api",
+    "instagram",
     "instagram api",
-    "facebook api"
+    "facebook",
+    "fb",
+    "facebook api",
+    "vine api",
+    "vine"
   ],
   "license": "MIT",
   "ignore": [
@@ -29,9 +36,6 @@
     "tests"
   ],
   "devDependencies": {
-    "requirejs": "~2.1.15",
-    "qunit": "~1.16.0",
-    "sinonjs": "~1.10.2",
-    "scroll": "~0.0.3"
+    "requirejs": "~2.1.15"
   }
 }

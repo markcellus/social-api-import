@@ -1,7 +1,6 @@
 var gulp = require('gulp');
 var browserify = require('gulp-browserify');
 var del = require('del');
-var mocha = require('gulp-mocha');
 var mochaPhantomJS = require('gulp-mocha-phantomjs');
 var copy = require('gulp-copy');
 var concat = require('gulp-concat');
