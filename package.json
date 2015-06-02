@@ -14,11 +14,19 @@
     "social",
     "social network api",
     "social api",
+    "twitter",
     "twitter api",
+    "tumblr",
     "tumblr api",
+    "instagram",
     "instagram api",
-    "facebook api"
+    "facebook",
+    "fb",
+    "facebook api",
+    "vine api",
+    "vine"
   ],
+  "license": "MIT",
   "devDependencies": {
     "del": "^1.1.1",
     "gulp": "^3.8.11",
