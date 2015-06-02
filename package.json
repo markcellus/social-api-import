@@ -26,6 +26,9 @@
     "vine api",
     "vine"
   ],
+  "scripts": {
+    "test": "gulp test"
+  },
   "license": "MIT",
   "devDependencies": {
     "del": "^1.1.1",
