@@ -1,4 +1,6 @@
 [![Build Status](https://travis-ci.org/mkay581/social-api.svg?branch=master)](https://travis-ci.org/mkay581/social-api)
+[![npm version](https://badge.fury.io/js/social-api-js.svg)](https://badge.fury.io/js/social-api-js)
+[![Bower version](https://badge.fury.io/bo/social-api.svg)](https://badge.fury.io/bo/social-api)
 
 # Social API
 
@@ -22,7 +24,6 @@ I recommend installing [babel](https://babeljs.io/) (or similiar) and `import`in
 ### Facebook
 
 ```javascript
-import {Facebook} from 'social-api';
 let options = {
   apiConfig: {appId: 'MyAP33IYEK3y'}
 };
@@ -35,7 +36,6 @@ Facebook.load(options, function (FB) {
 ### Twitter
 
 ```javascript
-import {Twitter} from 'social-api';
 Twitter.load({}, function (twttr) {
     // API loaded! Now, do something with the twitter object
     console.log(twttr);
@@ -45,7 +45,6 @@ Twitter.load({}, function (twttr) {
 ### Tumblr
 
 ```javascript
-import {Tumblr} from 'social-api';
 let options = {
   apiConfig: {
      api_key: 'vtoiBQGHzJfvtNaFXK7T5DJdIM8ozpjPPzcF9z6EUxZDSELGxd',
@@ -60,7 +59,6 @@ Tumblr.load(options, function () {
 ### Instagram
 
 ```javascript
-import {Instagram} from 'social-api';
 Instagram.load({}, function () {
     // API loaded!
 });
@@ -69,7 +67,6 @@ Instagram.load({}, function () {
 ### Vine
 
 ```javascript
-import {Vine} from 'social-api';
 let el = document.getElementsByTagName('div')[0];
 Vine.load({}, function () {
     // API loaded! Show an embed
