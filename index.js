@@ -1,6 +1,8 @@
 'use strict';
-export Facebook from './src/facebook';
-export Instagram from './src/instagram';
-export Tumblr from './src/tumblr';
-export Twitter from './src/twitter';
-export Vine from './src/vine';
+module.exports = {
+    Facebook: require('./src/facebook'),
+    Instagram: require('./src/instagram'),
+    Tumblr: require('./src/tumblr'),
+    Twitter: require('./src/twitter'),
+    Vine: require('./src/vine')
+};
