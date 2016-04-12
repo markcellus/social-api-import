@@ -31,7 +31,11 @@ class Instagram extends BaseApi {
      * @private
      */
     _handleLoadApi (cb) {
-        this.loadScript(this.options.scriptUrl, 'instagram-sdk', cb);
+        this.loadScript(this.options.scriptUrl, 'instagram-sdk', function () {
+            // must manually process instagram embed
+            window.instgrm.Embeds.process();
+            cb(window.instgrm);
+        });
     }
 
 }
