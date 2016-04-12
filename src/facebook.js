@@ -1,17 +1,12 @@
 'use strict';
-
-var Utils = require('./utils');
-var BaseApi = require('./base-api');
+import Utils from './utils';
+import BaseApi from './base-api';
 
 /**
  * Facebook API class.
  * @class Facebook
  */
-var Facebook = function () {
-    this.initialize();
-};
-
-Facebook.prototype = Utils.extend({}, BaseApi.prototype, {
+class Facebook extends BaseApi {
 
     /**
      * Loads the script to the API and returns the FB object.
@@ -20,7 +15,7 @@ Facebook.prototype = Utils.extend({}, BaseApi.prototype, {
      * @param {Object} options.apiConfig - The FB.init() options
      * @param {Function} [callback] - Fires when the FB SDK has been loaded passed the FB object
      */
-    load: function (options, callback) {
+    load (options, callback) {
 
         options = Utils.extend({
             scriptUrl: '//connect.facebook.net/en_US/sdk.js',
@@ -33,14 +28,14 @@ Facebook.prototype = Utils.extend({}, BaseApi.prototype, {
         this.options = options;
 
         this.loadApi(callback);
-    },
+    }
 
     /**
      * Handles loading the API.
      * @param cb
      * @private
      */
-    _handleLoadApi: function (cb) {
+    _handleLoadApi (cb) {
         window.fbAsyncInit = function () {
             FB.init(this.options.apiConfig);
             cb(FB);
@@ -48,6 +43,6 @@ Facebook.prototype = Utils.extend({}, BaseApi.prototype, {
         this.loadScript(this.options.scriptUrl, 'facebook-jssdk');
     }
 
-});
+}
 
-module.exports = window.SocialApi.Facebook = new Facebook();
+export default new Facebook();

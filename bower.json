@@ -1,6 +1,5 @@
 {
   "name": "social-api",
-  "version": "0.2.0",
   "homepage": "https://github.com/mkay581/social-api",
   "authors": [
     "Mark Kennedy <mkay581@gmail.com>"
@@ -34,8 +33,5 @@
     "bower_components",
     "test",
     "tests"
-  ],
-  "devDependencies": {
-    "requirejs": "~2.1.15"
-  }
+  ]
 }
