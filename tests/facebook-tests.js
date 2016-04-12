@@ -1,8 +1,10 @@
-var sinon = require('sinon');
-var assert = require('assert');
-var Facebook = require('./../src/facebook');
+'use strict';
+import sinon from 'sinon';
+import assert from 'assert';
+import Facebook from './../src/facebook';
 
 describe('Facebook', function () {
+
     it('should load the script and hoist FB object', function () {
         var loadOptions = {
             apiConfig: {

@@ -4,27 +4,19 @@
  * An abstract class of which all API modules should extend.
  * @class BaseApi
  */
-window.SocialApi = window.SocialApi || {};
-
-var BaseApi = function () {
-    this.initialize();
-};
-
-BaseApi.prototype = {
+class BaseApi {
 
     /**
      * When the API is instantiated.
      */
-    initialize: function () {
+    constructor () {
         BaseApi.prototype._scriptCount = BaseApi.prototype._scriptCount || 0;
         BaseApi.prototype._scriptCount++;
-
         // set unique instance id
         this._sid = BaseApi.prototype._scriptCount;
-
         this._apiLoadListeners = this._apiLoadListeners || [];
 
-    },
+    }
 
     /**
      * Loads the script to the API.
@@ -34,20 +26,20 @@ BaseApi.prototype = {
      * @param {Function} [callback] - Fires when the FB SDK has been loaded passed the FB object
      * @abstract
      */
-    load: function (options, callback) {
+    load (options, callback) {
         callback ? callback() : null;
-    },
+    }
 
     /**
      * Removes the script from the DOM.
      * @abstract
      */
-    unload: function () {
+    unload () {
         if (this.scriptEl.parentNode) {
             this.scriptEl.parentNode.removeChild(this.scriptEl);
         }
         this._scriptLoaded = false;
-    },
+    }
 
     /**
      * Injects the Script into the DOM.
@@ -56,7 +48,7 @@ BaseApi.prototype = {
      * @param {Function} [listener] - The callback fired when the script finishes loading.
      * @abstract
      */
-    loadScript: function (path, id, listener) {
+    loadScript (path, id, listener) {
         this.scriptEl = this.createScriptElement();
         this.scriptEl.id = id;
         this.scriptEl.src = path;
@@ -66,13 +58,13 @@ BaseApi.prototype = {
                 listener ? listener() : null;
             }
         }.bind(this);
-        document.getElementsByTagName('body')[0].appendChild(this.scriptEl);
-    },
+        document.getElementsByTagName('head')[0].appendChild(this.scriptEl);
+    }
     
     /**
      * Loads the API.
      */
-    loadApi: function (listener) {
+    loadApi (listener) {
         listener = listener || function () {};
         if (this.getLoadStatus() === 'loaded') {
             listener.apply(this, this.loadedArgs);
@@ -82,7 +74,7 @@ BaseApi.prototype = {
         if (this.getLoadStatus() === 'notLoaded') {
             this._handleLoadApi(this._triggerApiLoaded.bind(this));
         }
-    },
+    }
 
     /**
      * A function that should be overridden that handles when the API is done loading.
@@ -90,9 +82,9 @@ BaseApi.prototype = {
      * @private
      * @abstract
      */
-    _handleLoadApi: function (listener) {
+    _handleLoadApi (listener) {
         listener ? listener() : null;
-    },
+    }
 
     /**
      * Function that should be fired when the API is loaded,
@@ -101,29 +93,29 @@ BaseApi.prototype = {
      * @private
      * @abstract
      */
-    _triggerApiLoaded: function () {
+    _triggerApiLoaded () {
         this.loadedArgs = arguments;
         this._apiLoadListeners.forEach(function (func) {
             func.apply(this, this.loadedArgs);
         }.bind(this));
         this._apiLoadListeners = [];
         this._apiLoaded = true;
-    },
+    }
 
     /**
      * Creates a new script element.
      * Primarily here for unit tests.
      * @returns {HTMLElement}
      */
-    createScriptElement: function () {
+    createScriptElement () {
         return document.createElement('script');
-    },
+    }
 
     /**
      * Gets the load status.
      * @returns {string}
      */
-    getLoadStatus: function () {
+    getLoadStatus () {
         if (!this._scriptLoaded) {
             return 'notLoaded';
         } else if (this._apiLoaded) {
@@ -131,18 +123,18 @@ BaseApi.prototype = {
         } else {
             return 'loading';
         }
-    },
+    }
 
     /**
      * Adds a listener function be notified once the script has finished loading.
      * @param {Function} listener - The listener function
      */
-    queueLoadListener: function (listener) {
+    queueLoadListener (listener) {
         if (listener && this._apiLoadListeners.indexOf(listener) === -1) {
             this._apiLoadListeners.push(listener);
         }
     }
-};
+}
 
-module.exports = BaseApi;
+export default BaseApi;
 

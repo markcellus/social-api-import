@@ -27,19 +27,13 @@
     "vine"
   ],
   "scripts": {
-    "test": "gulp test"
+    "test": "bt test",
+    "start": " bt build local"
   },
+  "main": "src/index.js",
   "license": "MIT",
   "devDependencies": {
-    "del": "^1.1.1",
-    "gulp": "^3.8.11",
-    "gulp-browserify": "^0.5.1",
-    "gulp-clean": "^0.3.1",
-    "gulp-cli": "^0.2.0",
-    "gulp-concat": "^2.5.0",
-    "gulp-connect": "^2.2.0",
-    "gulp-copy": "0.0.2",
-    "gulp-mocha-phantomjs": "^0.6.1",
-    "sinon": "^1.12.2"
+    "build-tools": "^3.0.6",
+    "sinon": "^1.17.3"
   }
 }

@@ -1,8 +1,10 @@
-var sinon = require('sinon');
-var assert = require('assert');
-var Twitter = require('./../src/twitter');
+'use strict';
+import sinon from 'sinon';
+import assert from 'assert';
+import Twitter from './../src/twitter';
 
 describe('Twitter', function () {
+
     it('should load script correctly', function () {
         var cbSpy = sinon.spy();
         var mockScriptEl = document.createElement('script');
@@ -21,4 +23,5 @@ describe('Twitter', function () {
         assert.equal(document.querySelectorAll('#twitter-wjs').length, 0, 'when unload() is called, script tag is removed from the DOM');
         createScriptElementStub.restore();
     });
+
 });

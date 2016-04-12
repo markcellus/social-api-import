@@ -1,16 +1,12 @@
 'use strict';
-
-var Utils = require('./utils');
-var BaseApi = require('./base-api');
+import Utils from './utils';
+import BaseApi from './base-api';
 
 /**
  * Tumblr API-loading class.
  * @class Tumblr
  */
-var Tumblr = function () {
-    this.initialize();
-};
-Tumblr.prototype = Utils.extend({}, BaseApi.prototype, {
+class Tumblr extends BaseApi {
 
     /**
      * Loads the script to the API.
@@ -20,7 +16,7 @@ Tumblr.prototype = Utils.extend({}, BaseApi.prototype, {
      * @param {Object} options.apiConfig.api_key - API key
      * @param {Function} [callback] - Fires when the FB SDK has been loaded
      */
-    load: function (options, callback) {
+    load (options, callback) {
         this.onReadyCallback = 'onTumblrReady';
 
         options = Utils.extend({
@@ -36,21 +32,21 @@ Tumblr.prototype = Utils.extend({}, BaseApi.prototype, {
         this.options = options;
 
         this.loadApi(callback);
-    },
+    }
 
     /**
      * Fires callback when API has been loaded.
      * @param {Function} cb - The callback
      * @private
      */
-    _handleLoadApi: function (cb) {
+    _handleLoadApi (cb) {
         var options = this.options;
         options.scriptUrl = '//api.tumblr.com/v2/blog/' + options.apiConfig['base-hostname'] + '/?' +
         'api_key=' + options.apiConfig.api_key + '&' +
         'callback=' + this.onReadyCallback;
         window[this.onReadyCallback] = cb;
         this.loadScript(options.scriptUrl, 'tumblr-lscript');
-    },
+    }
 
     /**
      * Makes an API call for latest posts and returns them in a standard block of html.
@@ -58,7 +54,7 @@ Tumblr.prototype = Utils.extend({}, BaseApi.prototype, {
      * @param options
      * @param callback
      */
-    getPostsEmbed: function (url, options, callback) {
+    getPostsEmbed (url, options, callback) {
 
         var request = new XMLHttpRequest(),
             err,
@@ -91,6 +87,6 @@ Tumblr.prototype = Utils.extend({}, BaseApi.prototype, {
         request.send();
     }
 
-});
+}
 
-module.exports = window.SocialApi.Tumblr = new Tumblr();
+export default new Tumblr();

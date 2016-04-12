@@ -1,8 +1,9 @@
-var sinon = require('sinon');
-var assert = require('assert');
-var Tumblr = require('./../src/tumblr');
+import sinon from 'sinon';
+import assert from 'assert';
+import Tumblr from './../src/tumblr';
 
 describe('Tumblr', function () {
+
     it('should load script correctly', function () {
         var cbSpy = sinon.spy();
         var mockScriptEl = document.createElement('script');
@@ -26,4 +27,5 @@ describe('Tumblr', function () {
         assert.equal(document.querySelectorAll('#tumblr-lscript').length, 0, 'when unload() is called, script tag is removed from the DOM');
         createScriptElementStub.restore();
     });
+
 });
