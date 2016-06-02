@@ -37,54 +37,22 @@ In order to use this package, you must be using a compiler to utilize the latest
 I recommend installing [babel](https://babeljs.io/) (or similiar) and `import`ing the [source](/src) files directly.
 Or you can be old-school and use the files in the [dist](/dist) folder. :)
 
-### Facebook
+## Methods
+
+### load([options])
+
+This method loads the api of the social network, using the supplied object of `options`.
+It also returns a promise that is the API object of the network. The following example uses Facebook, but you can also follow
+this same pattern for each of the other network interfaces (Twitter, Tumblr, Instagram, Vine, etc);
 
 ```javascript
-let options = {
-  appId: 'MyAP33IYEK3y'
-};
-Facebook.load(options).then(function (FB) {
+import {Facebook} from 'social-api-js';
+Facebook.load({appId: 'MyAP33IYEK3y'}).then(function (FB) {
     // API loaded! Now, do something with the FB object
     console.log(FB);
 });
 ```
 
-### Twitter
+When using the `load()` call, certain networks require different set of `options`. Please see the documentation of
+the network to find out which `options` properties you need to pass.
 
-```javascript
-Twitter.load().then(function (twttr) {
-    // API loaded! Now, do something with the twitter object
-    console.log(twttr);
-});
-```
-
-### Tumblr
-
-```javascript
-let options = {
-  api_key: 'vtoiBQGHzJfvtNaFXK7T5DJdIM8ozpjPPzcF9z6EUxZDSELGxd',
- 'base-hostname': 'janey-smith.tumblr.com'
-};
-Tumblr.load(options).then(function () {
-    // API loaded!
-});
-```
-
-### Instagram
-
-```javascript
-Instagram.load().then(function (instgrm) {
-    // API loaded! Do something with `instgrm` object here
-
-});
-```
-
-### Vine
-
-```javascript
-let el = document.getElementsByTagName('div')[0];
-Vine.load().then(function () {
-    // API loaded! Show an embed
-    el.innerHTML = '<iframe class="vine-embed" src="https://vine.co/v/sf90dfs/embed/simple" width="600" height="600" frameborder="0"></iframe>';
-});
-```
