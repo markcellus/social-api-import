@@ -44,14 +44,20 @@ class Facebook extends BaseApi {
             let buildScope = () => {
                 options.permissions = options.permissions || [];
                 return options.permissions.reduce((prev, perm) => {
-                    return prev += PERMISSIONS_MAP[perm];
+                    let value = PERMISSIONS_MAP[perm] || '';
+                    if (value && prev.indexOf(value) === -1) {
+                        value = prev ? ',' + value : value;
+                    } else {
+                        value = ''
+                    }
+                    return prev += value;
                 }, '');
             };
 
             options.scope = options.scope || buildScope(options.permissions);
 
             return new Promise((resolve, reject) => {
-                this.FB.login(function(response) {
+                this.FB.login((response) => {
                     if (response.authResponse) {
                         resolve({
                             accessToken: response.authResponse.accessToken,
