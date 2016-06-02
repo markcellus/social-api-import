@@ -1,5 +1,5 @@
 /** 
-* social-api-js - v1.1.0.
+* social-api-js - v1.1.1.
 * https://github.com/mkay581/social-api.git
 * Copyright 2016 Mark Kennedy. Licensed MIT.
 */
