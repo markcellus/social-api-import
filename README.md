@@ -16,10 +16,26 @@ Supports the following APIs:
 * Vine
 
 
+## Feature Roadmap
+
+Each API will have a standard way of achieving the following with simple javascript methods. The goal is for each network
+interface to follow a hard standard--having the same response format, method signature, and error handling.
+Here are the features that either have been completed or will be in the next few weeks.
+
+- [x] API loading
+- [x] User logins
+- [ ] Login Status checking
+- [x] Permissions (partial)
+- [ ] User Tokens
+- [ ] User Posts
+- [ ] User Profiles
+
+
 ## Usage
 
 In order to use this package, you must be using a compiler to utilize the latest ES6 javascript syntax.
 I recommend installing [babel](https://babeljs.io/) (or similiar) and `import`ing the [source](/src) files directly.
+Or you can be old-school and use the files in the [dist](/dist) folder. :)
 
 ### Facebook
 
@@ -46,7 +62,7 @@ Twitter.load().then(function (twttr) {
 
 ```javascript
 let options = {
-  api_key: {'vtoiBQGHzJfvtNaFXK7T5DJdIM8ozpjPPzcF9z6EUxZDSELGxd',
+  api_key: 'vtoiBQGHzJfvtNaFXK7T5DJdIM8ozpjPPzcF9z6EUxZDSELGxd',
  'base-hostname': 'janey-smith.tumblr.com'
 };
 Tumblr.load(options).then(function () {
@@ -57,8 +73,9 @@ Tumblr.load(options).then(function () {
 ### Instagram
 
 ```javascript
-Instagram.load().then(function () {
-    // API loaded!
+Instagram.load().then(function (instgrm) {
+    // API loaded! Do something with `instgrm` object here
+
 });
 ```
 
