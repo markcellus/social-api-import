@@ -2,20 +2,19 @@
 import sinon from 'sinon';
 import assert from 'assert';
 import Vine from './../src/vine';
-import BaseApi from './../src/base-api';
+import {Promise} from 'es6-promise';
+import ResourceManager from 'resource-manager-js';
 
 describe('Vine', function () {
 
-    it('should call BaseApi\'s loadApi with callback passed to load call', function () {
-        var cbSpy = sinon.spy();
-        var baseApiLoadStub = sinon.stub(BaseApi.prototype, 'loadApi');
-        var baseApiUnLoadStub = sinon.stub(BaseApi.prototype, 'unload');
-        var testOptions = {};
-        Vine.load(testOptions, cbSpy);
-        assert.equal(baseApiLoadStub.args[0][0], cbSpy);
-        Vine.unload();
-        baseApiUnLoadStub.restore();
-        baseApiLoadStub.restore();
+    it('should call ResourceManager\'s loadScript method with the correct url to the vine js script', function () {
+        let resourceManagerLoadScriptStub = sinon.stub(ResourceManager, 'loadScript');
+        resourceManagerLoadScriptStub.returns(Promise.resolve());
+        return Vine.load().then(() => {
+            assert.ok(resourceManagerLoadScriptStub.calledWith('//platform.vine.co/static/scripts/embed.js'));
+            Vine.unload();
+            resourceManagerLoadScriptStub.restore();
+        });
     });
 
 });

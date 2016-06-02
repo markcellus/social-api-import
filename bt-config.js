@@ -1,10 +1,17 @@
 'use strict';
 module.exports = {
     build: {
-        local: {
+        production: {
             files: {
-                'demo/main-built.js': ['demo/main.js']
-            }
+                'dist/social-api.js': ['index.js']
+            },
+            browserifyOptions: {
+                standalone: 'SocialAPI'
+            },
+            minifyFiles: {
+                'dist/social-api-min.js': ['dist/social-api.js']
+            },
+            bannerFiles: ['dist/*']
         }
     },
     tests: {

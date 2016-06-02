@@ -1,31 +1,63 @@
+"use strict";
 import sinon from 'sinon';
 import assert from 'assert';
 import Tumblr from './../src/tumblr';
+import ResourceManager from 'resource-manager-js';
+import _ from 'lodash';
 
 describe('Tumblr', function () {
 
-    it('should load script correctly', function () {
-        var cbSpy = sinon.spy();
-        var mockScriptEl = document.createElement('script');
-        var createScriptElementStub = sinon.stub(Tumblr, 'createScriptElement').returns(mockScriptEl);
-        assert.equal(document.querySelectorAll('#tumblr-lscript').length, 0, 'before load() is called, new script tag has not yet been injected into the DOM');
-        var baseHostName = 'blah2';
-        var apiKey = 'myAPIKeeee';
-        var testOptions = {apiConfig: {'base-hostname': baseHostName, 'api_key': apiKey}};
-        Tumblr.load(testOptions, cbSpy);
-        var secondCbSpy = sinon.spy();
-        Tumblr.load(testOptions, secondCbSpy);
-        assert.equal(document.querySelectorAll('#tumblr-lscript').length, 1, 'after first call to load(), tumblr script is loaded into the DOM');
-        assert.equal(cbSpy.callCount, 0, 'callback is NOT triggered because script hasnt yet loaded');
-        mockScriptEl.onload(); // trigger script loaded
-        assert.equal(cbSpy.callCount, 0, 'after script has loaded, first callback is NOT triggered because API hasnt loaded');
-        assert.equal(secondCbSpy.callCount, 0, 'second callback is triggered is NOT triggered because API hasnt loaded');
-        window[Tumblr.onReadyCallback](); // trigger API load
-        assert.equal(cbSpy.callCount, 1, 'after API has loaded, first callback is triggered');
-        assert.equal(secondCbSpy.callCount, 1, 'second callback is triggered');
+    let resourceManagerLoadScriptStub;
+    let loadScriptTrigger = {};
+
+    beforeEach(function () {
+        resourceManagerLoadScriptStub = sinon.stub(ResourceManager, 'loadScript');
+        resourceManagerLoadScriptStub.returns(new Promise((resolve) => {
+            loadScriptTrigger.resolve = resolve;
+        }));
+    });
+
+    afterEach(function () {
+        resourceManagerLoadScriptStub.restore();
+    });
+
+    it('should call ResourceManager\'s loadScript method with the correct url to the tumblr js script', function (done) {
+        resourceManagerLoadScriptStub.returns(Promise.resolve());
+        var hostname = 'blah';
+        Tumblr.load({'base-hostname': hostname});
+        _.defer(() => {
+            var assertionUrl = '//api.tumblr.com/v2/blog/' + hostname + '/posts?api_key=&callback=onTumblrReady';
+            assert.ok(resourceManagerLoadScriptStub.calledWith(assertionUrl));
+            Tumblr.unload();
+            done();
+        });
+    });
+
+    it('should reject with error when there is no "base-hostname" option passed in load call', function (done) {
+        var loadSpy = sinon.stub(Tumblr, 'load');
+        Tumblr.load();
+        assert.ok(loadSpy.throws());
         Tumblr.unload();
-        assert.equal(document.querySelectorAll('#tumblr-lscript').length, 0, 'when unload() is called, script tag is removed from the DOM');
-        createScriptElementStub.restore();
+        loadSpy.restore();
+        done();
+    });
+
+    it('should resolve the load promise only when ResourceManager\'s loadScript method resolves and the "onTumblrReady" callback is triggered', function (done) {
+        var loadSpy = sinon.spy();
+        Tumblr.load({'base-hostname': 'test'}).then(loadSpy);
+        _.defer(() => {
+            assert.equal(loadSpy.callCount, 0);
+            loadScriptTrigger.resolve(); // trigger load script
+            assert.equal(loadSpy.callCount, 0);
+            _.defer(() => {
+                window.onTumblrReady(); // trigger callback
+                _.defer(() => {
+                    assert.ok(loadSpy.calledOnce);
+                    Tumblr.unload();
+                    done();
+                });
+            });
+        });
     });
 
 });

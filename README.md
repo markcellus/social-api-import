@@ -25,9 +25,9 @@ I recommend installing [babel](https://babeljs.io/) (or similiar) and `import`in
 
 ```javascript
 let options = {
-  apiConfig: {appId: 'MyAP33IYEK3y'}
+  appId: 'MyAP33IYEK3y'
 };
-Facebook.load(options, function (FB) {
+Facebook.load(options).then(function (FB) {
     // API loaded! Now, do something with the FB object
     console.log(FB);
 });
@@ -36,7 +36,7 @@ Facebook.load(options, function (FB) {
 ### Twitter
 
 ```javascript
-Twitter.load({}, function (twttr) {
+Twitter.load().then(function (twttr) {
     // API loaded! Now, do something with the twitter object
     console.log(twttr);
 });
@@ -46,12 +46,10 @@ Twitter.load({}, function (twttr) {
 
 ```javascript
 let options = {
-  apiConfig: {
-     api_key: 'vtoiBQGHzJfvtNaFXK7T5DJdIM8ozpjPPzcF9z6EUxZDSELGxd',
-     'base-hostname': 'janey-smith.tumblr.com'
- }
+  api_key: {'vtoiBQGHzJfvtNaFXK7T5DJdIM8ozpjPPzcF9z6EUxZDSELGxd',
+ 'base-hostname': 'janey-smith.tumblr.com'
 };
-Tumblr.load(options, function () {
+Tumblr.load(options).then(function () {
     // API loaded!
 });
 ```
@@ -59,7 +57,7 @@ Tumblr.load(options, function () {
 ### Instagram
 
 ```javascript
-Instagram.load({}, function () {
+Instagram.load().then(function () {
     // API loaded!
 });
 ```
@@ -68,7 +66,7 @@ Instagram.load({}, function () {
 
 ```javascript
 let el = document.getElementsByTagName('div')[0];
-Vine.load({}, function () {
+Vine.load().then(function () {
     // API loaded! Show an embed
     el.innerHTML = '<iframe class="vine-embed" src="https://vine.co/v/sf90dfs/embed/simple" width="600" height="600" frameborder="0"></iframe>';
 });

@@ -1,6 +1,6 @@
 'use strict';
-import Utils from './utils';
 import BaseApi from './base-api';
+import {Promise} from 'es6-promise';
 
 /**
  * Tumblr API-loading class.
@@ -9,82 +9,40 @@ import BaseApi from './base-api';
 class Tumblr extends BaseApi {
 
     /**
-     * Loads the script to the API.
-     * @param {Object} options - load options
-     * @param {Object} options.apiConfig - The Tumblr api options
-     * @param {Object} options.apiConfig.base-hostname - The base-hostname
-     * @param {Object} options.apiConfig.api_key - API key
-     * @param {Function} [callback] - Fires when the FB SDK has been loaded
+     * Loads the script to the Tumblr API.
+     * @param {Object} options - Tumblr API options
+     * @param {Object} options.base-hostname - The base-hostname
+     * @param {Object} [options.api_key] - API key
+     * @returns {Promise} Returns a promise that resolves when the Tumblr API has been loaded
      */
-    load (options, callback) {
-        this.onReadyCallback = 'onTumblrReady';
-
-        options = Utils.extend({
-            apiConfig: {}
-        }, options);
-
-        if (!options.apiConfig['base-hostname']) {
-            return console.error('Tumblr load() method needs to be passed a "base-hostname"');
+    load (options = {}) {
+        if (!options['base-hostname']) {
+            throw Error('Tumblr load() method needs to be passed a "base-hostname"');
         }
-
-        options.apiConfig.api_key = options.apiConfig.api_key || '';
-
-        this.options = options;
-
-        this.loadApi(callback);
+        options.api_key = options.api_key || '';
+        return super.load(options);
     }
-
+    
     /**
      * Fires callback when API has been loaded.
-     * @param {Function} cb - The callback
+     * @param {Object} options - The API options
      * @private
      */
-    _handleLoadApi (cb) {
-        var options = this.options;
-        options.scriptUrl = '//api.tumblr.com/v2/blog/' + options.apiConfig['base-hostname'] + '/?' +
-        'api_key=' + options.apiConfig.api_key + '&' +
-        'callback=' + this.onReadyCallback;
-        window[this.onReadyCallback] = cb;
-        this.loadScript(options.scriptUrl, 'tumblr-lscript');
-    }
+    _handleLoadApi (options) {
+        let callbackMethod = 'onTumblrReady';
 
-    /**
-     * Makes an API call for latest posts and returns them in a standard block of html.
-     * @param url
-     * @param options
-     * @param callback
-     */
-    getPostsEmbed (url, options, callback) {
+        // we're arbitrarily choosing the "/posts" endpoint to prevent getting a 404 error
+        let scriptUrl =
+            '//api.tumblr.com/v2/blog/' + options['base-hostname'] + '/posts?' +
+            'api_key=' + options.api_key + '&' +
+            'callback=' + callbackMethod;
 
-        var request = new XMLHttpRequest(),
-            err,
-            onComplete = function (err) {
-                callback ? callback(err) : null;
+        return new Promise((resolve) => {
+            window[callbackMethod] = function () {
+                resolve();
             };
-
-        if (typeof options === 'function') {
-            options = callback;
-        }
-
-        // add api key to call
-        url += '?api_key=' + this.options.apiConfig.api_key + '&jsonp=';
-
-        request.open('GET', url, true);
-        request.onload = function () {
-            if (request.status >= 200 && request.status < 400) {
-                // Success!
-                var data = JSON.parse(request.responseText);
-            } else {
-                // error
-                err = request
-            }
-            onComplete(err);
-        };
-        request.onerror = function () {
-            console.log('error occurred');
-            console.log(arguments);
-        };
-        request.send();
+            this._loadScript(scriptUrl);
+        })
     }
 
 }
