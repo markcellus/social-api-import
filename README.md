@@ -4,8 +4,11 @@
 
 # Social API
 
-A library that provides a standard JS interface to dynamically load (or lazy load) all social network APIs (good for
-sites that integrate multiple social network APIs together).
+Using one social network API is easy. But using multiple ones throughout your app, is not only is tedious, but very frustrating
+due to each API being soooo different from one another. The response objects, the methods, the parameters, everything.
+
+This library aims to make things easier for you by giving you a common interface for each social network API. Each
+network's API can be accessed using the same method names and response objects that follow the same schema.
 
 Supports the following APIs:
 
@@ -23,9 +26,9 @@ interface to follow a hard standard--having the same response format, method sig
 Here are the features that either have been completed or will be in the next few weeks.
 
 - [x] API loading
-- [x] User logins
-- [ ] Login Status checking
-- [x] Permissions (partial)
+- [x] User logins (Facebook only)
+- [x] Permissions (Facebook only)
+- [ ] Login Status
 - [ ] User Tokens
 - [ ] User Posts
 - [ ] User Profiles
@@ -41,7 +44,7 @@ Or you can be old-school and use the files in the [dist](/dist) folder. :)
 
 ### load([options])
 
-This method loads the api of the social network, using the supplied object of `options`.
+This method allows you to lazily load the api of the social network, using the supplied object of `options`.
 It also returns a promise that is the API object of the network. The following example uses Facebook, but you can also follow
 this same pattern for each of the other network interfaces (Twitter, Tumblr, Instagram, Vine, etc);
 
