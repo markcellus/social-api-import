@@ -2,26 +2,55 @@
 import sinon from 'sinon';
 import assert from 'assert';
 import Twitter from './../src/twitter';
+import _ from 'lodash';
+import ResourceManager from 'resource-manager-js';
+import {Promise} from 'es6-promise';
 
 describe('Twitter', function () {
 
-    it('should load script correctly', function () {
-        var cbSpy = sinon.spy();
-        var mockScriptEl = document.createElement('script');
-        var createScriptElementStub = sinon.stub(Twitter, 'createScriptElement').returns(mockScriptEl);
-        assert.equal(document.querySelectorAll('#twitter-wjs').length, 0, 'before load() is called, new script tag has not yet been injected into the DOM');
-        var testOptions = {};
-        Twitter.load(testOptions, cbSpy);
-        var secondCbSpy = sinon.spy();
-        Twitter.load(testOptions, secondCbSpy);
-        assert.equal(document.querySelectorAll('#twitter-wjs').length, 1, 'after first call to load(), tumblr script is loaded into the DOM');
-        assert.equal(cbSpy.callCount, 0, 'callback is NOT triggered because script hasnt yet loaded');
-        mockScriptEl.onload(); // trigger script loaded
-        assert.equal(cbSpy.callCount, 1, 'after API has loaded, first callback is triggered');
-        assert.equal(secondCbSpy.callCount, 1, 'second callback is triggered');
-        Twitter.unload();
-        assert.equal(document.querySelectorAll('#twitter-wjs').length, 0, 'when unload() is called, script tag is removed from the DOM');
-        createScriptElementStub.restore();
+    let origTwttr;
+    let resourceManagerLoadScriptStub;
+    let loadScriptTrigger = {};
+
+    beforeEach(function () {
+        origTwttr = window.twttr;
+        resourceManagerLoadScriptStub = sinon.stub(ResourceManager, 'loadScript');
+        resourceManagerLoadScriptStub.returns(new Promise((resolve) => {
+            loadScriptTrigger.resolve = resolve;
+        }));
+    });
+
+    afterEach(function () {
+        window.twttr = origTwttr;
+        resourceManagerLoadScriptStub.restore();
+    });
+
+    it('should call ResourceManager\'s loadScript method when load is called', function (done) {
+        Twitter.load();
+        _.defer(() => {
+            assert.ok(resourceManagerLoadScriptStub.calledWith('https://platform.twitter.com/widgets.js'));
+            Twitter.unload();
+            done();
+        });
+    });
+
+    it('should resolve the load promise only when ResourceManager\'s loadScript method resolves and the twitter api triggers our ready method in the queue', function (done) {
+        var loadSpy = sinon.spy();
+        Twitter.load().then(loadSpy);
+        _.defer(() => {
+            assert.equal(loadSpy.callCount, 0);
+            // trigger load script resolve
+            loadScriptTrigger.resolve();
+            assert.equal(loadSpy.callCount, 0);
+            _.defer(() => {
+                window.twttr._e[0](window.twttr);
+                _.defer(() => {
+                    assert.ok(loadSpy.calledWith(window.twttr));
+                    Twitter.unload();
+                    done();
+                });
+            });
+        });
     });
 
 });

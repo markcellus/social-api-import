@@ -13,6 +13,9 @@
   "keywords": [
     "social",
     "social network api",
+    "social networks",
+    "sdk",
+    "facebook sdk",
     "social api",
     "twitter",
     "twitter api",
@@ -26,6 +29,10 @@
     "vine api",
     "vine"
   ],
+  "dependencies": {
+    "es6-promise": "^3.2.1",
+    "resource-manager-js": "^2.2.0"
+  },
   "license": "MIT",
   "ignore": [
     "**/.*",

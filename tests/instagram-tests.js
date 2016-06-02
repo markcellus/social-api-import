@@ -2,39 +2,66 @@
 import sinon from 'sinon';
 import assert from 'assert';
 import Instagram from './../src/instagram';
+import ResourceManager from 'resource-manager-js';
+import _ from 'lodash';
 
 describe('Instagram', function () {
 
-    it('should load script correctly and pass back instagram window object', function () {
-        var cbSpy = sinon.spy();
-        var mockScriptEl = document.createElement('script');
-        var createScriptElementStub = sinon.stub(Instagram, 'createScriptElement').returns(mockScriptEl);
-        var testOptions = {};
-        Instagram.load(testOptions, cbSpy);
-        var origInstagramWindowObj = window.instgrm;
-        window.instgrm = {Embeds: {process: sinon.spy()}};
-        mockScriptEl.onload(); // trigger script loaded
-        assert.deepEqual(cbSpy.args[0][0], window.instgrm);
-        Instagram.unload();
-        createScriptElementStub.restore();
-        window.instgrm = origInstagramWindowObj;
+    let origInstgrm;
+    let resourceManagerLoadScriptStub;
+    let loadScriptTrigger = {};
+
+    beforeEach(function () {
+        origInstgrm = window.instgrm;
+        window.instgrm = {
+            Embeds: {
+                process: sinon.spy()
+            }
+        };
+        resourceManagerLoadScriptStub = sinon.stub(ResourceManager, 'loadScript');
+        resourceManagerLoadScriptStub.returns(new Promise((resolve) => {
+            loadScriptTrigger.resolve = resolve;
+        }));
     });
 
-    it('should call process method on instagram window object when loaded', function () {
-        var cbSpy = sinon.spy();
-        var mockScriptEl = document.createElement('script');
-        var createScriptElementStub = sinon.stub(Instagram, 'createScriptElement').returns(mockScriptEl);
-        assert.equal(document.querySelectorAll('#twitter-wjs').length, 0, 'before load() is called, new script tag has not yet been injected into the DOM');
-        var testOptions = {};
-        Instagram.load(testOptions, cbSpy);
-        var origInstagramWindowObj = window.instgrm;
-        window.instgrm = {Embeds: {process: sinon.spy()}};
-        assert.equal(window.instgrm.Embeds.process.callCount, 0, 'window object process method was not yet called because script hasnt been loaded yet');
-        mockScriptEl.onload(); // trigger script loaded
-        assert.equal(window.instgrm.Embeds.process.callCount, 1, 'window object process method is called once script has loaded');
-        Instagram.unload();
-        createScriptElementStub.restore();
-        window.instgrm = origInstagramWindowObj;
+    afterEach(function () {
+        window.instgrm = origInstgrm;
+        resourceManagerLoadScriptStub.restore();
+    });
+
+    it('should call ResourceManager\'s loadScript method when load is called', function (done) {
+        Instagram.load();
+        _.defer(() => {
+            assert.ok(resourceManagerLoadScriptStub.calledWith('//platform.instagram.com/en_US/embeds.js'));
+            Instagram.unload();
+            done();
+        });
+    });
+
+    it('should call process method on instagram window object when script is loaded', function (done) {
+        // ensure script is loaded immediately
+        resourceManagerLoadScriptStub.returns(Promise.resolve());
+        Instagram.load();
+        _.defer(() => {
+            assert.ok(window.instgrm.Embeds.process.calledOnce);
+            Instagram.unload();
+            done();
+        })
+    });
+
+
+    it('should resolve load call with instgrm object when script is loaded', function (done) {
+        var loadSpy = sinon.spy();
+        Instagram.load().then(loadSpy);
+        assert.ok(loadSpy.notCalled);
+        _.defer(() => {
+            loadScriptTrigger.resolve(); // trigger script load
+            _.defer(() => {
+                assert.ok(loadSpy.calledWith(window.instgrm));
+                Instagram.unload();
+                done();
+            });
+        })
     });
 
 

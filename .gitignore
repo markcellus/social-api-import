@@ -10,4 +10,3 @@ dist/build.txt
 external
 bower_components
 tests/built-tests.js
-demo/main-built.js

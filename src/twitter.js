@@ -1,6 +1,6 @@
 'use strict';
-import Utils from './utils';
 import BaseApi from './base-api';
+import {Promise} from 'es6-promise';
 
 /**
  * Twitter API-loading class.
@@ -9,33 +9,21 @@ import BaseApi from './base-api';
 class Twitter extends BaseApi {
 
     /**
-     * Loads the script to the API and returns the FB object.
-     * @param {Object} options - load options
-     * @param {Object} options.scriptUrl - The src url of the script js file
-     * @param {Object} options.apiConfig - The FB.init() options
-     * @param {Function} [callback] - Fires when the FB SDK has been loaded passed the FB object
-     */
-    load (options, callback) {
-
-        this.options = Utils.extend({
-            scriptUrl: 'https://platform.twitter.com/widgets.js',
-            apiConfig: {}
-        }, options);
-        this.loadApi(callback);
-    }
-
-    /**
-     * Fires callback when API has been loaded.
-     * @param {Function} cb - The callback
+     * Loads the Twitter API.
      * @private
+     * @returns {Promise}
      */
-    _handleLoadApi (cb) {
-        this.loadScript(this.options.scriptUrl, 'twitter-wjs', function () {
-            var t = window.twttr || {};
-            t.ready = function (f) {
-                t._e.push(f);
-            };
-            cb(t);
+    _handleLoadApi () {
+        window.twttr = window.twttr || {};
+        window.twttr._e = [];
+        window.twttr.ready = function (f) {
+            window.twttr._e.push(f);
+        };
+        return new Promise((resolve) => {
+            window.twttr.ready(function (twttr) {
+                resolve(twttr);
+            });
+            this._loadScript('https://platform.twitter.com/widgets.js');
         });
     }
 }
