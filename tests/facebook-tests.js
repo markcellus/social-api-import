@@ -82,6 +82,7 @@ describe('Facebook', function () {
         window.FB.login.yields(resp);
         // ensure fbAsyncInit is called immediately
         Object.defineProperty(window, 'fbAsyncInit', {
+            configurable: true,
             set: function (func) {
                 func();
             }
@@ -113,6 +114,7 @@ describe('Facebook', function () {
         window.FB.login.yields(resp);
         // ensure fbAsyncInit is called immediately
         Object.defineProperty(window, 'fbAsyncInit', {
+            configurable: true,
             set: function (func) {
                 func();
             }
@@ -131,6 +133,7 @@ describe('Facebook', function () {
         window.FB.login.yields(resp);
         // ensure fbAsyncInit is called immediately
         Object.defineProperty(window, 'fbAsyncInit', {
+            configurable: true,
             set: function (func) {
                 func();
             }
@@ -155,6 +158,7 @@ describe('Facebook', function () {
         window.FB.login.yields(resp);
         // ensure fbAsyncInit is called immediately
         Object.defineProperty(window, 'fbAsyncInit', {
+            configurable: true,
             set: function (func) {
                 func();
             }
@@ -172,6 +176,7 @@ describe('Facebook', function () {
         window.FB.login.yields({});
         // ensure fbAsyncInit is called immediately
         Object.defineProperty(window, 'fbAsyncInit', {
+            configurable: true,
             set: function (func) {
                 func();
             }

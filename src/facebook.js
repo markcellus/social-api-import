@@ -91,6 +91,11 @@ class Facebook extends BaseApi {
         });
     }
 
+    unload () {
+        delete window.fbAsyncInit;
+        return super.unload();
+    }
+
 }
 
 export default new Facebook();
