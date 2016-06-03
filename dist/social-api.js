@@ -1,10 +1,103 @@
 /** 
-* social-api-js - v1.1.4.
+* social-api-js - v1.1.5.
 * https://github.com/mkay581/social-api.git
 * Copyright 2016 Mark Kennedy. Licensed MIT.
 */
 
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.SocialAPI = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+// shim for using process in browser
+
+var process = module.exports = {};
+var queue = [];
+var draining = false;
+var currentQueue;
+var queueIndex = -1;
+
+function cleanUpNextTick() {
+    draining = false;
+    if (currentQueue.length) {
+        queue = currentQueue.concat(queue);
+    } else {
+        queueIndex = -1;
+    }
+    if (queue.length) {
+        drainQueue();
+    }
+}
+
+function drainQueue() {
+    if (draining) {
+        return;
+    }
+    var timeout = setTimeout(cleanUpNextTick);
+    draining = true;
+
+    var len = queue.length;
+    while(len) {
+        currentQueue = queue;
+        queue = [];
+        while (++queueIndex < len) {
+            if (currentQueue) {
+                currentQueue[queueIndex].run();
+            }
+        }
+        queueIndex = -1;
+        len = queue.length;
+    }
+    currentQueue = null;
+    draining = false;
+    clearTimeout(timeout);
+}
+
+process.nextTick = function (fun) {
+    var args = new Array(arguments.length - 1);
+    if (arguments.length > 1) {
+        for (var i = 1; i < arguments.length; i++) {
+            args[i - 1] = arguments[i];
+        }
+    }
+    queue.push(new Item(fun, args));
+    if (queue.length === 1 && !draining) {
+        setTimeout(drainQueue, 0);
+    }
+};
+
+// v8 likes predictible objects
+function Item(fun, array) {
+    this.fun = fun;
+    this.array = array;
+}
+Item.prototype.run = function () {
+    this.fun.apply(null, this.array);
+};
+process.title = 'browser';
+process.browser = true;
+process.env = {};
+process.argv = [];
+process.version = ''; // empty string to avoid regexp issues
+process.versions = {};
+
+function noop() {}
+
+process.on = noop;
+process.addListener = noop;
+process.once = noop;
+process.off = noop;
+process.removeListener = noop;
+process.removeAllListeners = noop;
+process.emit = noop;
+
+process.binding = function (name) {
+    throw new Error('process.binding is not supported');
+};
+
+process.cwd = function () { return '/' };
+process.chdir = function (dir) {
+    throw new Error('process.chdir is not supported');
+};
+process.umask = function() { return 0; };
+
+},{}],2:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -40,7 +133,7 @@ exports.Tumblr = _tumblr2.default;
 exports.Twitter = _twitter2.default;
 exports.Vine = _vine2.default;
 
-},{"./src/facebook":16,"./src/instagram":17,"./src/tumblr":18,"./src/twitter":19,"./src/vine":20}],2:[function(require,module,exports){
+},{"./src/facebook":17,"./src/instagram":18,"./src/tumblr":19,"./src/twitter":20,"./src/vine":21}],3:[function(require,module,exports){
 "use strict";
 
 // rawAsap provides everything we need except exception management.
@@ -108,7 +201,7 @@ RawTask.prototype.call = function () {
     }
 };
 
-},{"./raw":3}],3:[function(require,module,exports){
+},{"./raw":4}],4:[function(require,module,exports){
 (function (global){
 "use strict";
 
@@ -332,7 +425,7 @@ rawAsap.makeRequestCallFromTimer = makeRequestCallFromTimer;
 // https://github.com/tildeio/rsvp.js/blob/cddf7232546a9cf858524b75cde6f9edf72620a7/lib/rsvp/asap.js
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],4:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 (function (process,global){
 /*!
  * @overview es6-promise - a tiny implementation of Promises/A+.
@@ -1295,7 +1388,7 @@ rawAsap.makeRequestCallFromTimer = makeRequestCallFromTimer;
 
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"_process":21}],5:[function(require,module,exports){
+},{"_process":1}],6:[function(require,module,exports){
 (function (global){
 /**
  * @license
@@ -17703,12 +17796,12 @@ rawAsap.makeRequestCallFromTimer = makeRequestCallFromTimer;
 }.call(this));
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 'use strict';
 
 module.exports = require('./lib')
 
-},{"./lib":11}],7:[function(require,module,exports){
+},{"./lib":12}],8:[function(require,module,exports){
 'use strict';
 
 var asap = require('asap/raw');
@@ -17923,7 +18016,7 @@ function doResolve(fn, promise) {
   }
 }
 
-},{"asap/raw":3}],8:[function(require,module,exports){
+},{"asap/raw":4}],9:[function(require,module,exports){
 'use strict';
 
 var Promise = require('./core.js');
@@ -17938,7 +18031,7 @@ Promise.prototype.done = function (onFulfilled, onRejected) {
   });
 };
 
-},{"./core.js":7}],9:[function(require,module,exports){
+},{"./core.js":8}],10:[function(require,module,exports){
 'use strict';
 
 //This file contains the ES6 extensions to the core Promises/A+ API
@@ -18047,7 +18140,7 @@ Promise.prototype['catch'] = function (onRejected) {
   return this.then(null, onRejected);
 };
 
-},{"./core.js":7}],10:[function(require,module,exports){
+},{"./core.js":8}],11:[function(require,module,exports){
 'use strict';
 
 var Promise = require('./core.js');
@@ -18065,7 +18158,7 @@ Promise.prototype['finally'] = function (f) {
   });
 };
 
-},{"./core.js":7}],11:[function(require,module,exports){
+},{"./core.js":8}],12:[function(require,module,exports){
 'use strict';
 
 module.exports = require('./core.js');
@@ -18075,7 +18168,7 @@ require('./es6-extensions.js');
 require('./node-extensions.js');
 require('./synchronous.js');
 
-},{"./core.js":7,"./done.js":8,"./es6-extensions.js":9,"./finally.js":10,"./node-extensions.js":12,"./synchronous.js":13}],12:[function(require,module,exports){
+},{"./core.js":8,"./done.js":9,"./es6-extensions.js":10,"./finally.js":11,"./node-extensions.js":13,"./synchronous.js":14}],13:[function(require,module,exports){
 'use strict';
 
 // This file contains then/promise specific extensions that are only useful
@@ -18207,7 +18300,7 @@ Promise.prototype.nodeify = function (callback, ctx) {
   });
 }
 
-},{"./core.js":7,"asap":2}],13:[function(require,module,exports){
+},{"./core.js":8,"asap":3}],14:[function(require,module,exports){
 'use strict';
 
 var Promise = require('./core.js');
@@ -18271,7 +18364,7 @@ Promise.disableSynchronous = function() {
   Promise.prototype.getState = undefined;
 };
 
-},{"./core.js":7}],14:[function(require,module,exports){
+},{"./core.js":8}],15:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -18522,7 +18615,7 @@ var ResourceManager = function () {
 
 module.exports = new ResourceManager();
 
-},{"lodash":5,"promise":6}],15:[function(require,module,exports){
+},{"lodash":6,"promise":7}],16:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -18632,7 +18725,7 @@ var BaseApi = function () {
 
 exports.default = BaseApi;
 
-},{"es6-promise":4,"resource-manager-js":14}],16:[function(require,module,exports){
+},{"es6-promise":5,"resource-manager-js":15}],17:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -18720,22 +18813,31 @@ var Facebook = function (_BaseApi) {
                 var buildScope = function buildScope() {
                     options.permissions = options.permissions || [];
                     return options.permissions.reduce(function (prev, perm) {
-                        return prev += PERMISSIONS_MAP[perm];
+                        var value = PERMISSIONS_MAP[perm] || '';
+                        if (value && prev.indexOf(value) === -1) {
+                            value = prev ? ',' + value : value;
+                        } else {
+                            value = '';
+                        }
+                        return prev += value;
                     }, '');
                 };
 
                 options.scope = options.scope || buildScope(options.permissions);
 
-                return new _es6Promise.Promise(function (resolve, reject) {
+                return new _es6Promise.Promise(function (resolve) {
                     _this2.FB.login(function (response) {
                         if (response.authResponse) {
+                            // authorized!
                             resolve({
                                 accessToken: response.authResponse.accessToken,
                                 userId: response.authResponse.userId,
                                 expiresAt: response.authResponse.expiresIn
                             });
                         } else {
-                            reject(new Error('User cancelled login or did not fully authorize.'));
+                            // User either abandoned the login flow or,
+                            // for some other reason, did not fully authorize
+                            resolve({});
                         }
                     }, options);
                 });
@@ -18769,7 +18871,7 @@ var Facebook = function (_BaseApi) {
 
 exports.default = new Facebook();
 
-},{"./base-api":15,"es6-promise":4}],17:[function(require,module,exports){
+},{"./base-api":16,"es6-promise":5}],18:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -18826,7 +18928,7 @@ var Instagram = function (_BaseApi) {
 
 exports.default = new Instagram();
 
-},{"./base-api":15}],18:[function(require,module,exports){
+},{"./base-api":16}],19:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -18916,7 +19018,7 @@ var Tumblr = function (_BaseApi) {
 
 exports.default = new Tumblr();
 
-},{"./base-api":15,"es6-promise":4}],19:[function(require,module,exports){
+},{"./base-api":16,"es6-promise":5}],20:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -18984,7 +19086,7 @@ var Twitter = function (_BaseApi) {
 
 exports.default = new Twitter();
 
-},{"./base-api":15,"es6-promise":4}],20:[function(require,module,exports){
+},{"./base-api":16,"es6-promise":5}],21:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -19037,101 +19139,5 @@ var Vine = function (_BaseApi) {
 
 exports.default = new Vine();
 
-},{"./base-api":15}],21:[function(require,module,exports){
-// shim for using process in browser
-
-var process = module.exports = {};
-var queue = [];
-var draining = false;
-var currentQueue;
-var queueIndex = -1;
-
-function cleanUpNextTick() {
-    if (!draining || !currentQueue) {
-        return;
-    }
-    draining = false;
-    if (currentQueue.length) {
-        queue = currentQueue.concat(queue);
-    } else {
-        queueIndex = -1;
-    }
-    if (queue.length) {
-        drainQueue();
-    }
-}
-
-function drainQueue() {
-    if (draining) {
-        return;
-    }
-    var timeout = setTimeout(cleanUpNextTick);
-    draining = true;
-
-    var len = queue.length;
-    while(len) {
-        currentQueue = queue;
-        queue = [];
-        while (++queueIndex < len) {
-            if (currentQueue) {
-                currentQueue[queueIndex].run();
-            }
-        }
-        queueIndex = -1;
-        len = queue.length;
-    }
-    currentQueue = null;
-    draining = false;
-    clearTimeout(timeout);
-}
-
-process.nextTick = function (fun) {
-    var args = new Array(arguments.length - 1);
-    if (arguments.length > 1) {
-        for (var i = 1; i < arguments.length; i++) {
-            args[i - 1] = arguments[i];
-        }
-    }
-    queue.push(new Item(fun, args));
-    if (queue.length === 1 && !draining) {
-        setTimeout(drainQueue, 0);
-    }
-};
-
-// v8 likes predictible objects
-function Item(fun, array) {
-    this.fun = fun;
-    this.array = array;
-}
-Item.prototype.run = function () {
-    this.fun.apply(null, this.array);
-};
-process.title = 'browser';
-process.browser = true;
-process.env = {};
-process.argv = [];
-process.version = ''; // empty string to avoid regexp issues
-process.versions = {};
-
-function noop() {}
-
-process.on = noop;
-process.addListener = noop;
-process.once = noop;
-process.off = noop;
-process.removeListener = noop;
-process.removeAllListeners = noop;
-process.emit = noop;
-
-process.binding = function (name) {
-    throw new Error('process.binding is not supported');
-};
-
-process.cwd = function () { return '/' };
-process.chdir = function (dir) {
-    throw new Error('process.chdir is not supported');
-};
-process.umask = function() { return 0; };
-
-},{}]},{},[1])(1)
+},{"./base-api":16}]},{},[2])(2)
 });
