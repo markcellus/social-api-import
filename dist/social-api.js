@@ -1,5 +1,5 @@
 /** 
-* social-api-js - v1.1.2.
+* social-api-js - v1.1.5.
 * https://github.com/mkay581/social-api.git
 * Copyright 2016 Mark Kennedy. Licensed MIT.
 */
@@ -18813,22 +18813,31 @@ var Facebook = function (_BaseApi) {
                 var buildScope = function buildScope() {
                     options.permissions = options.permissions || [];
                     return options.permissions.reduce(function (prev, perm) {
-                        return prev += PERMISSIONS_MAP[perm];
+                        var value = PERMISSIONS_MAP[perm] || '';
+                        if (value && prev.indexOf(value) === -1) {
+                            value = prev ? ',' + value : value;
+                        } else {
+                            value = '';
+                        }
+                        return prev += value;
                     }, '');
                 };
 
                 options.scope = options.scope || buildScope(options.permissions);
 
-                return new _es6Promise.Promise(function (resolve, reject) {
+                return new _es6Promise.Promise(function (resolve) {
                     _this2.FB.login(function (response) {
                         if (response.authResponse) {
+                            // authorized!
                             resolve({
                                 accessToken: response.authResponse.accessToken,
                                 userId: response.authResponse.userId,
                                 expiresAt: response.authResponse.expiresIn
                             });
                         } else {
-                            reject(new Error('User cancelled login or did not fully authorize.'));
+                            // User either abandoned the login flow or,
+                            // for some other reason, did not fully authorize
+                            resolve({});
                         }
                     }, options);
                 });
