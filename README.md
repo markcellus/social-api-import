@@ -86,6 +86,18 @@ Facebook.login({
 });
 ```
 
+Generally permissions follow the [CRUD](https://en.wikipedia.org/wiki/Create,_read,_update_and_delete) methodology
+when manipulating persistent data. The following are all permissions currently available which applies to all social networks available in this package.
+
+| Permission | Description |
+|--------|--------|
+| `createPost` | Create posts on behalf of the user. |
+| `readPosts` | Read the user's posts. |
+| `updatePosts` | Update the user's posts (if social network allows it). |
+| `deletePosts` | Remove a user's posts (if social network allows it). |
+| `readProfile` | Read a user's profile information. |
+| `readFriendProfiles` | Read profiles of the user's friends. |
+
 #### Response
 
 The `login()` method will return a promise that will resolve with a standard object with the following properties when the user has taken an action after being taken to the login flow.
@@ -102,10 +114,8 @@ Facebook.login().then((data) => {
     console.log(data.accessToken, 'The user token');
     console.log(data.userId, 'The id of the user');
     console.log(data.expiresAt, 'When token expires');
-    data.userId
 });
 ```
-
 
 #### Login Caveats
 
