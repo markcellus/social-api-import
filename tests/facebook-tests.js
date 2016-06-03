@@ -171,7 +171,7 @@ describe('Facebook', function () {
         })
     });
 
-    it('should reject login promise when an authResponse object does not exist in the FB.login callback', function (done) {
+    it('should resolve with an empty object when an authResponse object does not exist in the FB.login callback', function (done) {
         resourceManagerLoadScriptStub.returns(Promise.resolve());
         window.FB.login.yields({});
         // ensure fbAsyncInit is called immediately
@@ -181,10 +181,12 @@ describe('Facebook', function () {
                 func();
             }
         });
-        var rejectSpy = sinon.spy();
-        Facebook.login().catch(rejectSpy);
+        var resolveSpy = sinon.spy();
+        Facebook.login().then(resolveSpy);
         _.defer(() => {
-            assert.equal(rejectSpy.callCount, 1);
+            var firstArg = resolveSpy.args[0][0];
+            assert.ok(_.isObject(firstArg));
+            assert.ok(_.isEmpty(firstArg));
             Facebook.unload();
             done();
         })
