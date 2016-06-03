@@ -5,7 +5,6 @@ import Facebook from './../src/facebook';
 import ResourceManager from 'resource-manager-js';
 import _ from 'lodash';
 import {Promise} from 'es6-promise';
-import async from 'async-promises';
 
 describe('Facebook', function () {
 
@@ -97,13 +96,15 @@ describe('Facebook', function () {
         };
         var keys = Object.keys(perms);
         var callIndex = 0;
-        return async.eachSeries(keys, (internalPermission) => {
-            return Facebook.login({permissions: [internalPermission]}).then(() => {
-                let facebookPermission = perms[internalPermission];
-                assert.equal(window.FB.login.args[callIndex][1].scope, facebookPermission, 'passing permission "' + internalPermission + '" gets passed to FB.login scope as "' + facebookPermission + '"');
-                callIndex++;
+        return keys.reduce((prevPromise, internalPermission) => {
+            return prevPromise.then(() => {
+                return Facebook.login({permissions: [internalPermission]}).then(() => {
+                    let facebookPermission = perms[internalPermission];
+                    assert.equal(window.FB.login.args[callIndex][1].scope, facebookPermission, 'passing permission "' + internalPermission + '" gets passed to FB.login scope as "' + facebookPermission + '"');
+                    callIndex++;
+                });
             });
-        }).then(() => {
+        }, Promise.resolve()).then(() => {
             Facebook.unload();
         })
     });
