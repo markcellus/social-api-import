@@ -5,7 +5,6 @@ import Facebook from './../src/facebook';
 import ResourceManager from 'resource-manager-js';
 import _ from 'lodash';
 import {Promise} from 'es6-promise';
-import async from 'async-promises';
 
 describe('Facebook', function () {
 
@@ -82,6 +81,7 @@ describe('Facebook', function () {
         window.FB.login.yields(resp);
         // ensure fbAsyncInit is called immediately
         Object.defineProperty(window, 'fbAsyncInit', {
+            configurable: true,
             set: function (func) {
                 func();
             }
@@ -96,13 +96,15 @@ describe('Facebook', function () {
         };
         var keys = Object.keys(perms);
         var callIndex = 0;
-        return async.eachSeries(keys, (internalPermission) => {
-            return Facebook.login({permissions: [internalPermission]}).then(() => {
-                let facebookPermission = perms[internalPermission];
-                assert.equal(window.FB.login.args[callIndex][1].scope, facebookPermission, 'passing permission "' + internalPermission + '" gets passed to FB.login scope as "' + facebookPermission + '"');
-                callIndex++;
+        return keys.reduce((prevPromise, internalPermission) => {
+            return prevPromise.then(() => {
+                return Facebook.login({permissions: [internalPermission]}).then(() => {
+                    let facebookPermission = perms[internalPermission];
+                    assert.equal(window.FB.login.args[callIndex][1].scope, facebookPermission, 'passing permission "' + internalPermission + '" gets passed to FB.login scope as "' + facebookPermission + '"');
+                    callIndex++;
+                });
             });
-        }).then(() => {
+        }, Promise.resolve()).then(() => {
             Facebook.unload();
         })
     });
@@ -113,6 +115,7 @@ describe('Facebook', function () {
         window.FB.login.yields(resp);
         // ensure fbAsyncInit is called immediately
         Object.defineProperty(window, 'fbAsyncInit', {
+            configurable: true,
             set: function (func) {
                 func();
             }
@@ -131,6 +134,7 @@ describe('Facebook', function () {
         window.FB.login.yields(resp);
         // ensure fbAsyncInit is called immediately
         Object.defineProperty(window, 'fbAsyncInit', {
+            configurable: true,
             set: function (func) {
                 func();
             }
@@ -155,6 +159,7 @@ describe('Facebook', function () {
         window.FB.login.yields(resp);
         // ensure fbAsyncInit is called immediately
         Object.defineProperty(window, 'fbAsyncInit', {
+            configurable: true,
             set: function (func) {
                 func();
             }
@@ -167,19 +172,22 @@ describe('Facebook', function () {
         })
     });
 
-    it('should reject login promise when an authResponse object does not exist in the FB.login callback', function (done) {
+    it('should resolve with an empty object when an authResponse object does not exist in the FB.login callback', function (done) {
         resourceManagerLoadScriptStub.returns(Promise.resolve());
         window.FB.login.yields({});
         // ensure fbAsyncInit is called immediately
         Object.defineProperty(window, 'fbAsyncInit', {
+            configurable: true,
             set: function (func) {
                 func();
             }
         });
-        var rejectSpy = sinon.spy();
-        Facebook.login().catch(rejectSpy);
+        var resolveSpy = sinon.spy();
+        Facebook.login().then(resolveSpy);
         _.defer(() => {
-            assert.equal(rejectSpy.callCount, 1);
+            var firstArg = resolveSpy.args[0][0];
+            assert.ok(_.isObject(firstArg));
+            assert.ok(_.isEmpty(firstArg));
             Facebook.unload();
             done();
         })

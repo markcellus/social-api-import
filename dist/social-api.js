@@ -1,5 +1,5 @@
 /** 
-* social-api-js - v1.1.5.
+* social-api-js - v1.1.6.
 * https://github.com/mkay581/social-api.git
 * Copyright 2016 Mark Kennedy. Licensed MIT.
 */
@@ -18863,6 +18863,12 @@ var Facebook = function (_BaseApi) {
                 };
                 _this3._loadScript('//connect.facebook.net/en_US/sdk.js');
             });
+        }
+    }, {
+        key: 'unload',
+        value: function unload() {
+            delete window.fbAsyncInit;
+            return _get(Object.getPrototypeOf(Facebook.prototype), 'unload', this).call(this);
         }
     }]);
 

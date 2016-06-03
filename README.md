@@ -124,3 +124,15 @@ attempt to call `login()` without a user interaction, most browsers will block i
 1. Twitter, most of the time, will require you to go into your application settings for your app and
 enable the *"Allow this application to be used to Sign in with Twitter?"* option.
 
+
+## Contributing
+
+All pull requests are welcome!
+
+## Development
+
+To run tests:
+
+```
+npm test
+```
