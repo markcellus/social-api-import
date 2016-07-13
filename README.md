@@ -25,14 +25,15 @@ Each API will have a standard way of achieving the following with simple javascr
 interface to follow a hard standard--having the same response format, method signature, and error handling.
 Here are the features that either have been completed or will be in the next few weeks.
 
-- [x] API loading
-- [x] User logins (Facebook only)
-- [x] Permissions (Facebook only)
-- [ ] Login Status
-- [ ] User Tokens
-- [ ] User Posts
-- [ ] User Profiles
-
+| Feature | Facebook | Tumblr | Twitter | Instagram | Vine |
+| --- | --- | --- | --- | --- | --- |
+| API loading | Supported  | Supported | Supported | Supported | Supported |
+| User logins | Supported  |  |  |  |  |  |
+| Permissions | Supported  |  |  |  |  |  |
+| Login Status |   |  |  |  |  |  |
+| User Tokens |   |  |  |  |  |  |
+| User Posts |   |  |  |  |  |  |
+| User Profiles |   |  |  |  |  |  |
 
 ## Usage
 
