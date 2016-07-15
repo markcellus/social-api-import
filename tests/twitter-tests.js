@@ -26,17 +26,19 @@ describe('Twitter', function () {
     });
 
     it('should call ResourceManager\'s loadScript method when load is called', function (done) {
-        Twitter.load();
+        let twitter = new Twitter();
+        twitter.load();
         _.defer(() => {
             assert.ok(resourceManagerLoadScriptStub.calledWith('https://platform.twitter.com/widgets.js'));
-            Twitter.unload();
+            twitter.destroy();
             done();
         });
     });
 
     it('should resolve the load promise only when ResourceManager\'s loadScript method resolves and the twitter api triggers our ready method in the queue', function (done) {
+        let twitter = new Twitter();
         var loadSpy = sinon.spy();
-        Twitter.load().then(loadSpy);
+        twitter.load().then(loadSpy);
         _.defer(() => {
             assert.equal(loadSpy.callCount, 0);
             // trigger load script resolve
@@ -46,7 +48,7 @@ describe('Twitter', function () {
                 window.twttr._e[0](window.twttr);
                 _.defer(() => {
                     assert.ok(loadSpy.calledWith(window.twttr));
-                    Twitter.unload();
+                    twitter.destroy();
                     done();
                 });
             });

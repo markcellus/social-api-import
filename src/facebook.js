@@ -18,18 +18,24 @@ const PERMISSIONS_MAP = {
 class Facebook extends BaseApi {
 
     /**
-     * Loads the script to the API and returns the FB object.
+     * Initializes the the API.
      * @param {Object} [options] - Facebook API options
-     * @returns {Promise} Returns a promise that resolves with the FB object when the FB SDK has been loaded
+     * @param {Number} [options.apiVersion] - The version of API to use
+     * @param {Boolean} [options.xfbml] - Whether to use Facebook's extended markup language
      */
-    load (options = {}) {
-        options.version = options.version || 'v2.1';
+    constructor (options = {}) {
+        if (options.version) {
+            options.version = options.version.split('v')[1];
+        }
+
+        options.apiVersion = options.apiVersion || options.version || 2.1;
         options.xfbml = options.xfbml || true;
-        return super.load(options);
+        super(options);
+        this.options = options;
     }
 
     /**
-     * Logs a user into facebook.
+     * Logs a user into facebook in order to get the access token for that user.
      * @param options
      * @param {Array} options.permissions - An array of standardized permissions (see Permissions docs)
      * @returns {Promise.<{Object}>} Returns a promise when user has logged in successfully and have approved all the permissions
@@ -80,10 +86,11 @@ class Facebook extends BaseApi {
      * @private
      * @returns {Promise}
      */
-    _handleLoadApi (options) {
+    _handleLoadApi () {
         return new Promise((resolve) => {
             window.fbAsyncInit = () => {
-                FB.init(options);
+                this.options.version = 'v' + this.options.apiVersion;
+                FB.init(this.options);
                 this.FB = FB;
                 resolve(FB);
             };
@@ -91,11 +98,15 @@ class Facebook extends BaseApi {
         });
     }
 
-    unload () {
+    static get id () {
+        return 'facebook';
+    }
+
+    destroy () {
         delete window.fbAsyncInit;
-        return super.unload();
+        return super.destroy();
     }
 
 }
 
-export default new Facebook();
+export default Facebook;

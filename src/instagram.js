@@ -7,6 +7,10 @@ import BaseApi from './base-api';
  */
 class Instagram extends BaseApi {
 
+    static get id () {
+        return 'instagram';
+    }
+
     /**
      * Handles loading the API.
      * @private
@@ -21,4 +25,4 @@ class Instagram extends BaseApi {
 
 }
 
-export default new Instagram();
+export default Instagram;

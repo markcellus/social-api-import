@@ -30,38 +30,79 @@ describe('Facebook', function () {
     });
 
     it('should call ResourceManager\'s loadScript method with the correct url to the facebook js script', function () {
-        Facebook.load();
+        let facebook = new Facebook();
+        facebook.load();
         assert.ok(resourceManagerLoadScriptStub.calledWith('//connect.facebook.net/en_US/sdk.js'));
-        Facebook.unload();
+        facebook.destroy();
     });
 
-    it('should load the FB object with default options when api is loaded', function (done) {
-        Facebook.load();
+    it('should call FB.init with xfmbl set to "true" if it hasnt been specified in options when api is loaded', function (done) {
+        let facebook = new Facebook();
+        facebook.load();
         _.defer(() => {
             window.fbAsyncInit(); //trigger api load
             var FBInitOptions = window.FB.init.args[0][0];
             assert.equal(FBInitOptions.xfbml, true, 'object passed FB.init() includes xfbml property set to "true"');
+            facebook.destroy();
+            done();
+        });
+    });
+
+    it('should call FB.init with version set to "v2.1" if there is none specified when api is loaded', function (done) {
+        let facebook = new Facebook();
+        facebook.load();
+        _.defer(() => {
+            window.fbAsyncInit(); //trigger api load
+            var FBInitOptions = window.FB.init.args[0][0];
             assert.equal(FBInitOptions.version, 'v2.1', 'object passed FB.init() includes version set to "v2.1"');
-            Facebook.unload();
+            facebook.destroy();
+            done();
+        });
+    });
+
+    it('should call FB.init when "v[VERSION]" option when "apiVersion" number is specified when api is loaded', function (done) {
+        var version = 2.5;
+        let facebook = new Facebook({apiVersion: version});
+        facebook.load();
+        _.defer(() => {
+            window.fbAsyncInit(); //trigger api load
+            var FBInitOptions = window.FB.init.args[0][0];
+            assert.equal(FBInitOptions.version, 'v' + version);
+            facebook.destroy();
+            done();
+        });
+    });
+
+    it('should call FB.init when "version" string when api is loaded', function (done) {
+        var version = 'v3.5';
+        let facebook = new Facebook({version: version});
+        facebook.load();
+        _.defer(() => {
+            window.fbAsyncInit(); //trigger api load
+            var FBInitOptions = window.FB.init.args[0][0];
+            assert.equal(FBInitOptions.version, version);
+            facebook.destroy();
             done();
         });
     });
 
     it('should load the FB object with appId specified in options when api is loaded', function (done) {
         var id = 'myFacebookAppId';
-        Facebook.load({appId: id});
+        let facebook = new Facebook({appId: id});
+        facebook.load();
         _.defer(() => {
             window.fbAsyncInit(); //trigger api load
             var FBInitOptions = window.FB.init.args[0][0];
             assert.equal(FBInitOptions.appId, id);
-            Facebook.unload();
+            facebook.destroy();
             done();
         });
     });
 
     it('should resolve the load promise only when ResourceManager\'s loadScript method resolves and fbAsyncInit has been triggered', function (done) {
         var loadSpy = sinon.spy();
-        Facebook.load().then(loadSpy);
+        let facebook = new Facebook();
+        facebook.load().then(loadSpy);
         _.defer(() => {
             assert.equal(loadSpy.callCount, 0, 'load hasnt resolved because ResourceManager loadScript hasnt resolved');
             loadScriptTrigger.resolve();
@@ -69,7 +110,7 @@ describe('Facebook', function () {
             window.fbAsyncInit(); // trigger api load
             _.defer(() => {
                 assert.ok(loadSpy.calledWith(window.FB), 'load is resolved with FB object when fbAsyncInit is triggered');
-                Facebook.unload();
+                facebook.destroy();
                 done();
             });
         });
@@ -96,16 +137,17 @@ describe('Facebook', function () {
         };
         var keys = Object.keys(perms);
         var callIndex = 0;
+        let facebook = new Facebook();
         return keys.reduce((prevPromise, internalPermission) => {
             return prevPromise.then(() => {
-                return Facebook.login({permissions: [internalPermission]}).then(() => {
+                return facebook.login({permissions: [internalPermission]}).then(() => {
                     let facebookPermission = perms[internalPermission];
                     assert.equal(window.FB.login.args[callIndex][1].scope, facebookPermission, 'passing permission "' + internalPermission + '" gets passed to FB.login scope as "' + facebookPermission + '"');
                     callIndex++;
                 });
             });
         }, Promise.resolve()).then(() => {
-            Facebook.unload();
+            facebook.destroy();
         })
     });
 
@@ -122,9 +164,10 @@ describe('Facebook', function () {
         });
         // choose multiple permissions that would match different permissions
         var testPermissions = ['createPosts', 'readPosts'];
-        return Facebook.login({permissions: testPermissions}).then(() => {
+        let facebook = new Facebook();
+        return facebook.login({permissions: testPermissions}).then(() => {
             assert.equal(window.FB.login.args[0][1].scope, 'publish_actions,user_posts');
-            Facebook.unload();
+            facebook.destroy();
         });
     });
 
@@ -141,9 +184,10 @@ describe('Facebook', function () {
         });
         // choose multiple permissions with same mapped value
         var testPermissions = ['createPosts', 'updatePosts'];
-        return Facebook.login({permissions: testPermissions}).then(() => {
+        let facebook = new Facebook();
+        return facebook.login({permissions: testPermissions}).then(() => {
             assert.equal(window.FB.login.args[0][1].scope, 'publish_actions');
-            Facebook.unload();
+            facebook.destroy();
         });
     });
 
@@ -164,15 +208,16 @@ describe('Facebook', function () {
                 func();
             }
         });
-        return Facebook.login().then((assertResp) => {
+        let facebook = new Facebook();
+        return facebook.login().then((assertResp) => {
             assert.equal(assertResp.accessToken, resp.authResponse.accessToken);
             assert.equal(assertResp.userId, resp.authResponse.userId);
             assert.equal(assertResp.expiresAt, resp.authResponse.expiresIn);
-            Facebook.unload();
+            facebook.destroy();
         })
     });
 
-    it('should resolve with an empty object when an authResponse object does not exist in the FB.login callback', function (done) {
+    it('should resolve login with an empty object when an authResponse object does not exist in the FB.login callback', function (done) {
         resourceManagerLoadScriptStub.returns(Promise.resolve());
         window.FB.login.yields({});
         // ensure fbAsyncInit is called immediately
@@ -183,14 +228,29 @@ describe('Facebook', function () {
             }
         });
         var resolveSpy = sinon.spy();
-        Facebook.login().then(resolveSpy);
+        let facebook = new Facebook();
+        facebook.login().then(resolveSpy);
         _.defer(() => {
             var firstArg = resolveSpy.args[0][0];
             assert.ok(_.isObject(firstArg));
             assert.ok(_.isEmpty(firstArg));
-            Facebook.unload();
+            facebook.destroy();
             done();
         })
+    });
+
+    it('should call ResourceManager\'s unloadScript method only when there are no other instances that exist', function () {
+        resourceManagerLoadScriptStub.returns(Promise.resolve());
+        let resourceManagerUnloadScriptStub = sinon.stub(ResourceManager, 'unloadScript');
+        let firstFacebookInstance = new Facebook();
+        let secondFacebookInstance = new Facebook();
+        firstFacebookInstance.load();
+        secondFacebookInstance.load();
+        firstFacebookInstance.destroy();
+        assert.equal(resourceManagerUnloadScriptStub.callCount, 0);
+        secondFacebookInstance.destroy();
+        assert.equal(resourceManagerUnloadScriptStub.callCount, 1);
+        resourceManagerUnloadScriptStub.restore();
     });
 });
 

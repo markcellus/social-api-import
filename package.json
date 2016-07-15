@@ -58,6 +58,7 @@
   },
   "dependencies": {
     "es6-promise": "^3.2.1",
+    "oauth": "^0.9.14",
     "resource-manager-js": "^2.2.0"
   }
 }

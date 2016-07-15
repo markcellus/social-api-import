@@ -30,10 +30,11 @@ describe('Instagram', function () {
     });
 
     it('should call ResourceManager\'s loadScript method when load is called', function (done) {
-        Instagram.load();
+        let instagram = new Instagram();
+        instagram.load();
         _.defer(() => {
             assert.ok(resourceManagerLoadScriptStub.calledWith('//platform.instagram.com/en_US/embeds.js'));
-            Instagram.unload();
+            instagram.destroy();
             done();
         });
     });
@@ -41,10 +42,11 @@ describe('Instagram', function () {
     it('should call process method on instagram window object when script is loaded', function (done) {
         // ensure script is loaded immediately
         resourceManagerLoadScriptStub.returns(Promise.resolve());
-        Instagram.load();
+        let instagram = new Instagram();
+        instagram.load();
         _.defer(() => {
             assert.ok(window.instgrm.Embeds.process.calledOnce);
-            Instagram.unload();
+            instagram.destroy();
             done();
         })
     });
@@ -52,13 +54,14 @@ describe('Instagram', function () {
 
     it('should resolve load call with instgrm object when script is loaded', function (done) {
         var loadSpy = sinon.spy();
-        Instagram.load().then(loadSpy);
+        let instagram = new Instagram();
+        instagram.load().then(loadSpy);
         assert.ok(loadSpy.notCalled);
         _.defer(() => {
             loadScriptTrigger.resolve(); // trigger script load
             _.defer(() => {
                 assert.ok(loadSpy.calledWith(window.instgrm));
-                Instagram.unload();
+                instagram.destroy();
                 done();
             });
         })

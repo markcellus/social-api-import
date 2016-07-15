@@ -24,27 +24,25 @@ describe('Tumblr', function () {
     it('should call ResourceManager\'s loadScript method with the correct url to the tumblr js script', function (done) {
         resourceManagerLoadScriptStub.returns(Promise.resolve());
         var hostname = 'blah';
-        Tumblr.load({'base-hostname': hostname});
+        let tumblr = new Tumblr({'base-hostname': hostname});
+        tumblr.load();
         _.defer(() => {
             var assertionUrl = '//api.tumblr.com/v2/blog/' + hostname + '/posts?api_key=&callback=onTumblrReady';
             assert.ok(resourceManagerLoadScriptStub.calledWith(assertionUrl));
-            Tumblr.unload();
+            tumblr.destroy();
             done();
         });
     });
 
-    it('should reject with error when there is no "base-hostname" option passed in load call', function (done) {
-        var loadSpy = sinon.stub(Tumblr, 'load');
-        Tumblr.load();
-        assert.ok(loadSpy.throws());
-        Tumblr.unload();
-        loadSpy.restore();
+    it('should throw error when there is no "base-hostname" option passed in constructor', function (done) {
+        assert.throws(() => new Tumblr(), Error);
         done();
     });
 
     it('should resolve the load promise only when ResourceManager\'s loadScript method resolves and the "onTumblrReady" callback is triggered', function (done) {
         var loadSpy = sinon.spy();
-        Tumblr.load({'base-hostname': 'test'}).then(loadSpy);
+        let tumblr = new Tumblr({'base-hostname': 'test'});
+        tumblr.load().then(loadSpy);
         _.defer(() => {
             assert.equal(loadSpy.callCount, 0);
             loadScriptTrigger.resolve(); // trigger load script
@@ -53,7 +51,7 @@ describe('Tumblr', function () {
                 window.onTumblrReady(); // trigger callback
                 _.defer(() => {
                     assert.ok(loadSpy.calledOnce);
-                    Tumblr.unload();
+                    tumblr.destroy();
                     done();
                 });
             });

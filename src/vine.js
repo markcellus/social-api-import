@@ -15,6 +15,10 @@ class Vine extends BaseApi {
         return this._loadScript('//platform.vine.co/static/scripts/embed.js');
     }
 
+    static get id () {
+        return 'vine';
+    }
+
 }
 
-export default new Vine();
+export default Vine;

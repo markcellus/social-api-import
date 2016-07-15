@@ -10,9 +10,10 @@ describe('Vine', function () {
     it('should call ResourceManager\'s loadScript method with the correct url to the vine js script', function () {
         let resourceManagerLoadScriptStub = sinon.stub(ResourceManager, 'loadScript');
         resourceManagerLoadScriptStub.returns(Promise.resolve());
-        return Vine.load().then(() => {
+        let vine = new Vine();
+        return vine.load().then(() => {
             assert.ok(resourceManagerLoadScriptStub.calledWith('//platform.vine.co/static/scripts/embed.js'));
-            Vine.unload();
+            vine.destroy();
             resourceManagerLoadScriptStub.restore();
         });
     });

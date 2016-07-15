@@ -1,24 +1,40 @@
 'use strict';
 import ResourceManager from 'resource-manager-js';
 import {Promise} from 'es6-promise';
+import _ from 'lodash';
 
 /**
  * An abstract class of which all API classes should extend.
  * @class BaseApi
  */
 class BaseApi {
-
+    
     /**
-     * Loads the script to the API.
-     * @param {Object} [options] - API options
+     * Constructor that sets stuff up for API methods.
+     * @param {Object} [options] - Internal API options
+     * @param {String} [options.appId] - The application ID supplied by the network
+     * @param {String} [options.apiVersion] - The version of the API to use
+     * @param {String} [options.apiKey] - Application key
+     * @param {String} [options.apiSecret] - Application secret
+     * @param {String} [options.callbackUrl] - The url to redirect to when done loading
      * @returns {Promise} - Returns the network's API object after it has been loaded
      * @abstract
      */
-    load (options = {}) {
-        if (!this._loadApiListenerPromise) {
-            this._loadApiListenerPromise = this._handleLoadApi(options);
+    constructor (options = {}) {
+        this.options = options;
+        BaseApi.prototype._loadedScripts = BaseApi.prototype._loadedScripts || [];
+    }
+
+    /**
+     * Loads the script to the API.
+     * @returns {Promise} - Returns the network's API object after it has been loaded
+     * @abstract
+     */
+    load () {
+        if (!this._loadApiListenerPromiseMap) {
+            this._loadApiListenerPromiseMap = this._handleLoadApi(this.options);
         }
-        return this._loadApiListenerPromise;
+        return this._loadApiListenerPromiseMap;
     }
 
     /**
@@ -26,18 +42,31 @@ class BaseApi {
      * @abstract
      * @returns {Promise}
      */
-    unload () {
-        this._loadApiListenerPromise = null;
-        return ResourceManager.unloadScript(this._script);
+    destroy () {
+        let idx = BaseApi.prototype._loadedScripts.indexOf(this._script);
+        BaseApi.prototype._loadedScripts.splice(idx, 1);
+        if (this._script && BaseApi.prototype._loadedScripts.indexOf(this._script) <= -1) {
+            ResourceManager.unloadScript(this._script);
+        }
     }
 
     /**
-     * Logs the user in to the social network.
-     * @param {Object} options - The social networks options to pass for their login api call.
+     * Gets the access token for a user by logging them in to the social network.
+     * @param {Object} [options] - The social networks options to pass for their login api call.
+     * @param {Array} [options.permissions] - An array of standardized permissions (see Permissions docs)
+     * @returns {Promise.<{Object}>} Returns a promise when user has logged in successfully and have approved all the permissions
+     * @returns {Promise.<{Object}>.String} accessToken
+     * @returns {Promise.<{Object}>.Number} userId
+     * @returns {Promise.<{Object}>.Date} expiresAt
      * @returns {Promise} Returns a promise when the user has successfully logged in.
      */
     login (options = {}) {
-       return Promise.resolve();
+       return Promise.resolve({
+           accessToken: '',
+           accessTokenSecret: '',
+           userId: '',
+           expiresAt: null
+       });
     }
 
     /**
@@ -49,18 +78,23 @@ class BaseApi {
      */
     _loadScript (path) {
         this._script = path;
+        BaseApi.prototype._loadedScripts.push(this._script);
         return ResourceManager.loadScript(this._script);
     }
     
     /**
      * A function that should be overridden that handles when the API is done loading.
-     * @param {Object} [options] - API options
+     * @param {Object} [options] - API options passed in instantiation
      * @private
      * @abstract
      * @returns {Promise}
      */
     _handleLoadApi (options) {
         return Promise.resolve();
+    }
+
+    static get id () {
+        return 'base-api';
     }
     
 }
