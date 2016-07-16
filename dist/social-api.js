@@ -1,5 +1,5 @@
 /** 
-* social-api-js - v1.1.6.
+* social-api-js - v1.2.0.
 * https://github.com/mkay581/social-api.git
 * Copyright 2016 Mark Kennedy. Licensed MIT.
 */
@@ -18751,12 +18751,12 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 var PERMISSIONS_MAP = {
-    createPosts: 'publish_actions',
-    readPosts: 'user_posts',
-    updatePosts: 'publish_actions',
-    deletePosts: 'publish_actions',
-    readProfile: 'public_profile',
-    readFriendProfiles: 'user_friends'
+    createPosts: ['publish_actions'],
+    readPosts: ['user_posts'],
+    updatePosts: ['publish_actions'],
+    deletePosts: ['publish_actions'],
+    readProfile: ['public_profile', 'user_about_me'],
+    readFriendProfiles: ['user_friends']
 };
 
 /**
@@ -18813,13 +18813,15 @@ var Facebook = function (_BaseApi) {
                 var buildScope = function buildScope() {
                     options.permissions = options.permissions || [];
                     return options.permissions.reduce(function (prev, perm) {
-                        var value = PERMISSIONS_MAP[perm] || '';
-                        if (value && prev.indexOf(value) === -1) {
-                            value = prev ? ',' + value : value;
-                        } else {
-                            value = '';
-                        }
-                        return prev += value;
+                        var values = PERMISSIONS_MAP[perm] || [];
+                        return values.reduce(function (p, value) {
+                            if (value && prev.indexOf(value) === -1) {
+                                value = prev ? ',' + value : value;
+                            } else {
+                                value = '';
+                            }
+                            return prev += value;
+                        }, prev);
                     }, '');
                 };
 
