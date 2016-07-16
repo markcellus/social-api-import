@@ -3,12 +3,12 @@ import BaseApi from './base-api';
 import {Promise} from 'es6-promise';
 
 const PERMISSIONS_MAP = {
-    createPosts: 'publish_actions',
-    readPosts: 'user_posts',
-    updatePosts: 'publish_actions',
-    deletePosts: 'publish_actions',
-    readProfile: 'public_profile',
-    readFriendProfiles: 'user_friends'
+    createPosts: ['publish_actions'],
+    readPosts: ['user_posts'],
+    updatePosts: ['publish_actions'],
+    deletePosts: ['publish_actions'],
+    readProfile: ['public_profile', 'user_about_me'],
+    readFriendProfiles: ['user_friends']
 };
 
 /**
@@ -44,13 +44,15 @@ class Facebook extends BaseApi {
             let buildScope = () => {
                 options.permissions = options.permissions || [];
                 return options.permissions.reduce((prev, perm) => {
-                    let value = PERMISSIONS_MAP[perm] || '';
-                    if (value && prev.indexOf(value) === -1) {
-                        value = prev ? ',' + value : value;
-                    } else {
-                        value = ''
-                    }
-                    return prev += value;
+                    let values = PERMISSIONS_MAP[perm] || [];
+                    return values.reduce((p, value) => {
+                        if (value && prev.indexOf(value) === -1) {
+                            value = prev ? ',' + value : value;
+                        } else {
+                            value = ''
+                        }
+                        return prev += value;
+                    }, prev);
                 }, '');
             };
 
