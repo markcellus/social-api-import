@@ -7,7 +7,7 @@ const PERMISSIONS_MAP = {
     readPosts: ['user_posts'],
     updatePosts: ['publish_actions'],
     deletePosts: ['publish_actions'],
-    readProfile: ['public_profile', 'user_about_me', 'user_birthday', 'user_location'],
+    readProfile: ['public_profile', 'user_about_me', 'user_birthday', 'user_location', 'user_work_history'],
     readFriendProfiles: ['user_friends']
 };
 

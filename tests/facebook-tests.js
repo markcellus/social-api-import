@@ -177,6 +177,7 @@ describe('Facebook', function () {
             assert.ok(str.indexOf('user_about_me') > -1);
             assert.ok(str.indexOf('user_location') > -1);
             assert.ok(str.indexOf('user_birthday') > -1);
+            assert.ok(str.indexOf('user_work_history') > -1);
             Facebook.unload();
         });
     });
