@@ -1,5 +1,5 @@
 /** 
-* social-api-js - v1.2.1.
+* social-api-js - v1.2.2.
 * https://github.com/mkay581/social-api.git
 * Copyright 2016 Mark Kennedy. Licensed MIT.
 */
@@ -18755,7 +18755,7 @@ var PERMISSIONS_MAP = {
     readPosts: ['user_posts'],
     updatePosts: ['publish_actions'],
     deletePosts: ['publish_actions'],
-    readProfile: ['public_profile', 'user_about_me', 'user_birthday', 'user_location'],
+    readProfile: ['public_profile', 'user_about_me', 'user_birthday', 'user_location', 'user_work_history'],
     readFriendProfiles: ['user_friends']
 };
 
