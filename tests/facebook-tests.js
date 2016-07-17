@@ -175,6 +175,8 @@ describe('Facebook', function () {
             let str = window.FB.login.args[0][1].scope.split(',');
             assert.ok(str.indexOf('public_profile') > -1);
             assert.ok(str.indexOf('user_about_me') > -1);
+            assert.ok(str.indexOf('user_location') > -1);
+            assert.ok(str.indexOf('user_birthday') > -1);
             Facebook.unload();
         });
     });
