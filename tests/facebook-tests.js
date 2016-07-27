@@ -116,7 +116,7 @@ describe('Facebook', function () {
         });
     });
 
-    it('passing a permission into login should pass appropriate scope permission to the FB.login', function () {
+    it('passing a readFriendProfiles permission into login should pass appropriate scope permissions to the FB.login', function () {
         resourceManagerLoadScriptStub.returns(Promise.resolve());
         var resp = {authResponse: {}};
         window.FB.login.yields(resp);
@@ -127,28 +127,106 @@ describe('Facebook', function () {
                 func();
             }
         });
-        var perms = {
-            createPosts: 'publish_actions',
-            readPosts: 'user_posts',
-            updatePosts: 'publish_actions',
-            deletePosts: 'publish_actions',
-            readProfile: 'public_profile',
-            readFriendProfiles: 'user_friends'
-        };
-        var keys = Object.keys(perms);
-        var callIndex = 0;
         let facebook = new Facebook();
-        return keys.reduce((prevPromise, internalPermission) => {
-            return prevPromise.then(() => {
-                return facebook.login({permissions: [internalPermission]}).then(() => {
-                    let facebookPermission = perms[internalPermission];
-                    assert.equal(window.FB.login.args[callIndex][1].scope, facebookPermission, 'passing permission "' + internalPermission + '" gets passed to FB.login scope as "' + facebookPermission + '"');
-                    callIndex++;
-                });
-            });
-        }, Promise.resolve()).then(() => {
+        return facebook.login({permissions: ['readFriendProfiles']}).then(() => {
+            assert.equal(window.FB.login.args[0][1].scope, 'user_friends');
             facebook.destroy();
-        })
+        });
+    });
+
+    it('passing a deletePosts permission into login should pass appropriate scope permissions to the FB.login', function () {
+        resourceManagerLoadScriptStub.returns(Promise.resolve());
+        var resp = {authResponse: {}};
+        window.FB.login.yields(resp);
+        // ensure fbAsyncInit is called immediately
+        Object.defineProperty(window, 'fbAsyncInit', {
+            configurable: true,
+            set: function (func) {
+                func();
+            }
+        });
+        let facebook = new Facebook();
+        return facebook.login({permissions: ['deletePosts']}).then(() => {
+            assert.equal(window.FB.login.args[0][1].scope, 'publish_actions');
+            facebook.destroy();
+        });
+    });
+
+    it('passing a updatePosts permission into login should pass appropriate scope permissions to the FB.login', function () {
+        resourceManagerLoadScriptStub.returns(Promise.resolve());
+        var resp = {authResponse: {}};
+        window.FB.login.yields(resp);
+        // ensure fbAsyncInit is called immediately
+        Object.defineProperty(window, 'fbAsyncInit', {
+            configurable: true,
+            set: function (func) {
+                func();
+            }
+        });
+        let facebook = new Facebook();
+        return facebook.login({permissions: ['updatePosts']}).then(() => {
+            assert.equal(window.FB.login.args[0][1].scope, 'publish_actions');
+            facebook.destroy();
+        });
+    });
+
+    it('passing a readPosts permission into login should pass appropriate scope permissions to the FB.login', function () {
+        resourceManagerLoadScriptStub.returns(Promise.resolve());
+        var resp = {authResponse: {}};
+        window.FB.login.yields(resp);
+        // ensure fbAsyncInit is called immediately
+        Object.defineProperty(window, 'fbAsyncInit', {
+            configurable: true,
+            set: function (func) {
+                func();
+            }
+        });
+        let facebook = new Facebook();
+        return facebook.login({permissions: ['readPosts']}).then(() => {
+            assert.equal(window.FB.login.args[0][1].scope, 'user_posts');
+            facebook.destroy();
+        });
+    });
+
+    it('passing a createPosts permission into login should pass appropriate scope permissions to the FB.login', function () {
+        resourceManagerLoadScriptStub.returns(Promise.resolve());
+        var resp = {authResponse: {}};
+        window.FB.login.yields(resp);
+        // ensure fbAsyncInit is called immediately
+        Object.defineProperty(window, 'fbAsyncInit', {
+            configurable: true,
+            set: function (func) {
+                func();
+            }
+        });
+        let facebook = new Facebook();
+        return facebook.login({permissions: ['createPosts']}).then(() => {
+            assert.equal(window.FB.login.args[0][1].scope, 'publish_actions');
+            facebook.destroy();
+        });
+    });
+
+    it('passing a readProfile permission into login should pass appropriate scope permission to the FB.login', function () {
+        resourceManagerLoadScriptStub.returns(Promise.resolve());
+        var resp = {authResponse: {}};
+        window.FB.login.yields(resp);
+        // ensure fbAsyncInit is called immediately
+        Object.defineProperty(window, 'fbAsyncInit', {
+            configurable: true,
+            set: function (func) {
+                func();
+            }
+        });
+        let facebook = new Facebook();
+        return facebook.login({permissions: ['readProfile']}).then(() => {
+            let str = window.FB.login.args[0][1].scope.split(',');
+            assert.ok(str.indexOf('public_profile') > -1);
+            assert.ok(str.indexOf('user_about_me') > -1);
+            assert.ok(str.indexOf('user_location') > -1);
+            assert.ok(str.indexOf('user_birthday') > -1);
+            assert.ok(str.indexOf('user_work_history') > -1);
+            facebook.destroy();
+        });
     });
 
     it('multiple permissions passed into login should be converted to comma-seperated values to the FB.login', function () {
