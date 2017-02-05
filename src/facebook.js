@@ -70,7 +70,7 @@ class Facebook extends BaseApi {
                         // authorized!
                         resolve({
                             accessToken: response.authResponse.accessToken,
-                            userId: response.authResponse.userId,
+                            userId: response.authResponse.userID,
                             expiresAt: response.authResponse.expiresIn
                         });
                     } else {

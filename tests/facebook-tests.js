@@ -274,7 +274,7 @@ describe('Facebook', function () {
         var resp = {
             authResponse: {
                 accessToken: 'blurr',
-                userId: 'blurr',
+                userID: 'myId',
                 expiresIn: Date.now()
             }
         };
@@ -289,7 +289,7 @@ describe('Facebook', function () {
         let facebook = new Facebook();
         return facebook.login().then((assertResp) => {
             assert.equal(assertResp.accessToken, resp.authResponse.accessToken);
-            assert.equal(assertResp.userId, resp.authResponse.userId);
+            assert.equal(assertResp.userId, resp.authResponse.userID);
             assert.equal(assertResp.expiresAt, resp.authResponse.expiresIn);
             facebook.destroy();
         })
