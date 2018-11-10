@@ -1,3 +1,11 @@
+/*!
+ * Social-api-import v0.1.1
+ * https://npm.com/social-api-import
+ *
+ * Copyright (c) 2018 Mark Kennedy
+ * Licensed under the MIT license
+ */
+
 /*! *****************************************************************************
 Copyright (c) Microsoft Corporation. All rights reserved.
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use
@@ -111,10 +119,10 @@ class BaseApi {
      * @returns {Promise}
      */
     destroy() {
-        let idx = BaseApi.prototype._loadedScripts.indexOf(this._script);
+        const idx = BaseApi.prototype._loadedScripts.indexOf(this._script);
         BaseApi.prototype._loadedScripts.splice(idx, 1);
         if (this._script && BaseApi.prototype._loadedScripts.indexOf(this._script) <= -1) {
-            script.import(this._script);
+            script.unload(this._script);
         }
     }
     /**
@@ -201,18 +209,20 @@ class Facebook extends BaseApi {
      */
     login(options = {}) {
         return this.load().then(() => {
-            let buildScope = () => {
+            const buildScope = () => {
                 options.permissions = options.permissions || [];
                 return options.permissions.reduce((prev, perm) => {
-                    let values = PERMISSIONS_MAP[perm] || [];
+                    const values = PERMISSIONS_MAP[perm] || [];
                     return values.reduce((p, value) => {
-                        if (value && prev.indexOf(value) === -1) {
-                            value = prev ? ',' + value : value;
+                        const delimiter = prev ? ',' : '';
+                        let str = value || '';
+                        if (prev.indexOf(value) === -1) {
+                            str = `${delimiter}${value}`;
                         }
                         else {
-                            value = '';
+                            return prev;
                         }
-                        return prev += value;
+                        return prev += str;
                     }, prev);
                 }, '');
             };

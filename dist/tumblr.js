@@ -111,10 +111,10 @@ class BaseApi {
      * @returns {Promise}
      */
     destroy() {
-        let idx = BaseApi.prototype._loadedScripts.indexOf(this._script);
+        const idx = BaseApi.prototype._loadedScripts.indexOf(this._script);
         BaseApi.prototype._loadedScripts.splice(idx, 1);
         if (this._script && BaseApi.prototype._loadedScripts.indexOf(this._script) <= -1) {
-            script.import(this._script);
+            script.unload(this._script);
         }
     }
     /**
@@ -190,9 +190,9 @@ class Tumblr extends BaseApi {
      * @private
      */
     _handleLoadApi() {
-        let callbackMethod = 'onTumblrReady';
+        const callbackMethod = 'onTumblrReady';
         // we're arbitrarily choosing the "/posts" endpoint to prevent getting a 404 error
-        let scriptUrl = '//api.tumblr.com/v2/blog/' + this.options['base-hostname'] + '/posts?' +
+        const scriptUrl = '//api.tumblr.com/v2/blog/' + this.options['base-hostname'] + '/posts?' +
             'api_key=' + this.options.api_key + '&' +
             'callback=' + callbackMethod;
         return new Promise((resolve) => {

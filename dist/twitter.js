@@ -1,8 +1,8 @@
-import crypto from 'crypto';
-import http from 'http';
-import https from 'https';
-import url from 'url';
 import querystring from 'querystring';
+import crypto from 'crypto';
+import https from 'https';
+import http from 'http';
+import url from 'url';
 
 /*! *****************************************************************************
 Copyright (c) Microsoft Corporation. All rights reserved.
@@ -117,10 +117,10 @@ class BaseApi {
      * @returns {Promise}
      */
     destroy() {
-        let idx = BaseApi.prototype._loadedScripts.indexOf(this._script);
+        const idx = BaseApi.prototype._loadedScripts.indexOf(this._script);
         BaseApi.prototype._loadedScripts.splice(idx, 1);
         if (this._script && BaseApi.prototype._loadedScripts.indexOf(this._script) <= -1) {
-            script.import(this._script);
+            script.unload(this._script);
         }
     }
     /**
@@ -1240,15 +1240,14 @@ class Twitter extends BaseApi {
      * @private
      */
     _fetchAppToken() {
-        var oauth2 = new OAuth2(this.options.apiKey, this.options.apiSecret, 'https://api.twitter.com/', null, 'oauth2/token', null);
+        const oauth2 = new OAuth2(this.options.apiKey, this.options.apiSecret, 'https://api.twitter.com/', null, 'oauth2/token', null);
         return new Promise((resolve, reject) => {
-            oauth2.getOAuthAccessToken('', { 'grant_type': 'client_credentials' }, function (e, access_token, refresh_token, results) {
+            oauth2.getOAuthAccessToken('', { 'grant_type': 'client_credentials' }, function (e, accessToken, refreshToken, results) {
                 if (e) {
-                    console.log('ERROR: ' + e);
                     reject(e);
                 }
                 else {
-                    resolve(access_token);
+                    resolve(accessToken);
                 }
             });
         });
@@ -1259,7 +1258,7 @@ class Twitter extends BaseApi {
      * @private
      */
     _fetchUserAccessToken() {
-        var oauth = new OAuth('https://api.twitter.com/oauth/request_token', 'https://api.twitter.com/oauth/access_token', this.options.apiKey, this.options.apiSecret, '1.0A', null, 'HMAC-SHA1');
+        const oauth = new OAuth('https://api.twitter.com/oauth/request_token', 'https://api.twitter.com/oauth/access_token', this.options.apiKey, this.options.apiSecret, '1.0A', null, 'HMAC-SHA1');
         return new Promise((resolve, reject) => {
             oauth.getOAuthRequestToken((err, token, secret) => {
                 if (err) {

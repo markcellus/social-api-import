@@ -111,10 +111,10 @@ class BaseApi {
      * @returns {Promise}
      */
     destroy() {
-        let idx = BaseApi.prototype._loadedScripts.indexOf(this._script);
+        const idx = BaseApi.prototype._loadedScripts.indexOf(this._script);
         BaseApi.prototype._loadedScripts.splice(idx, 1);
         if (this._script && BaseApi.prototype._loadedScripts.indexOf(this._script) <= -1) {
-            script.import(this._script);
+            script.unload(this._script);
         }
     }
     /**

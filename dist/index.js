@@ -1,8 +1,8 @@
-import crypto from 'crypto';
-import http from 'http';
-import https from 'https';
-import url from 'url';
 import querystring from 'querystring';
+import crypto from 'crypto';
+import https from 'https';
+import http from 'http';
+import url from 'url';
 
 /*! *****************************************************************************
 Copyright (c) Microsoft Corporation. All rights reserved.
@@ -117,10 +117,10 @@ class BaseApi {
      * @returns {Promise}
      */
     destroy() {
-        let idx = BaseApi.prototype._loadedScripts.indexOf(this._script);
+        const idx = BaseApi.prototype._loadedScripts.indexOf(this._script);
         BaseApi.prototype._loadedScripts.splice(idx, 1);
         if (this._script && BaseApi.prototype._loadedScripts.indexOf(this._script) <= -1) {
-            script.import(this._script);
+            script.unload(this._script);
         }
     }
     /**
@@ -207,18 +207,20 @@ class Facebook extends BaseApi {
      */
     login(options = {}) {
         return this.load().then(() => {
-            let buildScope = () => {
+            const buildScope = () => {
                 options.permissions = options.permissions || [];
                 return options.permissions.reduce((prev, perm) => {
-                    let values = PERMISSIONS_MAP[perm] || [];
+                    const values = PERMISSIONS_MAP[perm] || [];
                     return values.reduce((p, value) => {
-                        if (value && prev.indexOf(value) === -1) {
-                            value = prev ? ',' + value : value;
+                        const delimiter = prev ? ',' : '';
+                        let str = value || '';
+                        if (prev.indexOf(value) === -1) {
+                            str = `${delimiter}${value}`;
                         }
                         else {
-                            value = '';
+                            return prev;
                         }
-                        return prev += value;
+                        return prev += str;
                     }, prev);
                 }, '');
             };
@@ -316,9 +318,9 @@ class Tumblr extends BaseApi {
      * @private
      */
     _handleLoadApi() {
-        let callbackMethod = 'onTumblrReady';
+        const callbackMethod = 'onTumblrReady';
         // we're arbitrarily choosing the "/posts" endpoint to prevent getting a 404 error
-        let scriptUrl = '//api.tumblr.com/v2/blog/' + this.options['base-hostname'] + '/posts?' +
+        const scriptUrl = '//api.tumblr.com/v2/blog/' + this.options['base-hostname'] + '/posts?' +
             'api_key=' + this.options.api_key + '&' +
             'callback=' + callbackMethod;
         return new Promise((resolve) => {
@@ -1402,15 +1404,14 @@ class Twitter extends BaseApi {
      * @private
      */
     _fetchAppToken() {
-        var oauth2 = new OAuth2(this.options.apiKey, this.options.apiSecret, 'https://api.twitter.com/', null, 'oauth2/token', null);
+        const oauth2 = new OAuth2(this.options.apiKey, this.options.apiSecret, 'https://api.twitter.com/', null, 'oauth2/token', null);
         return new Promise((resolve, reject) => {
-            oauth2.getOAuthAccessToken('', { 'grant_type': 'client_credentials' }, function (e, access_token, refresh_token, results) {
+            oauth2.getOAuthAccessToken('', { 'grant_type': 'client_credentials' }, function (e, accessToken, refreshToken, results) {
                 if (e) {
-                    console.log('ERROR: ' + e);
                     reject(e);
                 }
                 else {
-                    resolve(access_token);
+                    resolve(accessToken);
                 }
             });
         });
@@ -1421,7 +1422,7 @@ class Twitter extends BaseApi {
      * @private
      */
     _fetchUserAccessToken() {
-        var oauth = new OAuth('https://api.twitter.com/oauth/request_token', 'https://api.twitter.com/oauth/access_token', this.options.apiKey, this.options.apiSecret, '1.0A', null, 'HMAC-SHA1');
+        const oauth = new OAuth('https://api.twitter.com/oauth/request_token', 'https://api.twitter.com/oauth/access_token', this.options.apiKey, this.options.apiSecret, '1.0A', null, 'HMAC-SHA1');
         return new Promise((resolve, reject) => {
             oauth.getOAuthRequestToken((err, token, secret) => {
                 if (err) {
