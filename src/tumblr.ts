@@ -31,10 +31,10 @@ class Tumblr extends BaseApi {
      * @private
      */
     _handleLoadApi () {
-        let callbackMethod = 'onTumblrReady';
+        const callbackMethod = 'onTumblrReady';
 
         // we're arbitrarily choosing the "/posts" endpoint to prevent getting a 404 error
-        let scriptUrl =
+        const scriptUrl =
             '//api.tumblr.com/v2/blog/' + this.options['base-hostname'] + '/posts?' +
             'api_key=' + this.options.api_key + '&' +
             'callback=' + callbackMethod;

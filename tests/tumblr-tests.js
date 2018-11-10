@@ -1,34 +1,36 @@
 "use strict";
 import sinon from 'sinon';
-import assert from 'assert';
+import chai from 'chai';
 import Tumblr from '../src/tumblr';
-import ResourceManager from 'resource-manager-js';
+import { script } from 'dynamic-import';
 import _ from 'lodash';
+
+const { assert } = chai;
 
 describe('Tumblr', function () {
 
-    let resourceManagerLoadScriptStub;
+    let scriptImportStub;
     let loadScriptTrigger = {};
 
     beforeEach(function () {
-        resourceManagerLoadScriptStub = sinon.stub(ResourceManager, 'loadScript');
-        resourceManagerLoadScriptStub.returns(new Promise((resolve) => {
+        scriptImportStub = sinon.stub(script, 'import');
+        scriptImportStub.returns(new Promise((resolve) => {
             loadScriptTrigger.resolve = resolve;
         }));
     });
 
     afterEach(function () {
-        resourceManagerLoadScriptStub.restore();
+        scriptImportStub.restore();
     });
 
-    it('should call ResourceManager\'s loadScript method with the correct url to the tumblr js script', function (done) {
-        resourceManagerLoadScriptStub.returns(Promise.resolve());
+    it('should call script import method with the correct url to the tumblr js script', function (done) {
+        scriptImportStub.returns(Promise.resolve());
         var hostname = 'blah';
         let tumblr = new Tumblr({'base-hostname': hostname});
         tumblr.load();
         _.defer(() => {
             var assertionUrl = '//api.tumblr.com/v2/blog/' + hostname + '/posts?api_key=&callback=onTumblrReady';
-            assert.ok(resourceManagerLoadScriptStub.calledWith(assertionUrl));
+            assert.ok(scriptImportStub.calledWith(assertionUrl));
             tumblr.destroy();
             done();
         });
@@ -39,7 +41,7 @@ describe('Tumblr', function () {
         done();
     });
 
-    it('should resolve the load promise only when ResourceManager\'s loadScript method resolves and the "onTumblrReady" callback is triggered', function (done) {
+    it('should resolve the load promise only when script import method resolves and the "onTumblrReady" callback is triggered', function (done) {
         var loadSpy = sinon.spy();
         let tumblr = new Tumblr({'base-hostname': 'test'});
         tumblr.load().then(loadSpy);

@@ -1,14 +1,14 @@
-'use strict';
 import sinon from 'sinon';
-import assert from 'assert';
+import chai from 'chai';
 import Instagram from '../src/instagram';
-import ResourceManager from 'resource-manager-js';
+import { script } from 'dynamic-import';
 import _ from 'lodash';
 
+const { assert } = chai;
 describe('Instagram', function () {
 
     let origInstgrm;
-    let resourceManagerLoadScriptStub;
+    let scriptImportStub;
     let loadScriptTrigger = {};
 
     beforeEach(function () {
@@ -18,22 +18,22 @@ describe('Instagram', function () {
                 process: sinon.spy()
             }
         };
-        resourceManagerLoadScriptStub = sinon.stub(ResourceManager, 'loadScript');
-        resourceManagerLoadScriptStub.returns(new Promise((resolve) => {
+        scriptImportStub = sinon.stub(script, 'import');
+        scriptImportStub.returns(new Promise((resolve) => {
             loadScriptTrigger.resolve = resolve;
         }));
     });
 
     afterEach(function () {
         window.instgrm = origInstgrm;
-        resourceManagerLoadScriptStub.restore();
+        scriptImportStub.restore();
     });
 
-    it('should call ResourceManager\'s loadScript method when load is called', function (done) {
+    it('should call script import method when load is called', function (done) {
         let instagram = new Instagram();
         instagram.load();
         _.defer(() => {
-            assert.ok(resourceManagerLoadScriptStub.calledWith('//platform.instagram.com/en_US/embeds.js'));
+            assert.ok(scriptImportStub.calledWith('//platform.instagram.com/en_US/embeds.js'));
             instagram.destroy();
             done();
         });
@@ -41,7 +41,7 @@ describe('Instagram', function () {
 
     it('should call process method on instagram window object when script is loaded', function (done) {
         // ensure script is loaded immediately
-        resourceManagerLoadScriptStub.returns(Promise.resolve());
+        scriptImportStub.returns(Promise.resolve());
         let instagram = new Instagram();
         instagram.load();
         _.defer(() => {

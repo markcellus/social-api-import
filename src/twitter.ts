@@ -43,7 +43,7 @@ class Twitter extends BaseApi {
      * @private
      */
     _fetchAppToken () {
-        var oauth2 = new OAuth2(
+        const oauth2 = new OAuth2(
             this.options.apiKey,
             this.options.apiSecret,
             'https://api.twitter.com/',
@@ -55,12 +55,11 @@ class Twitter extends BaseApi {
             oauth2.getOAuthAccessToken(
                 '',
                 {'grant_type':'client_credentials'},
-                function (e, access_token, refresh_token, results){
+                function (e, accessToken, refreshToken, results){
                     if (e) {
-                        console.log('ERROR: ' + e);
                         reject(e);
                     } else {
-                        resolve(access_token);
+                        resolve(accessToken);
                     }
                 });
         });
@@ -73,7 +72,7 @@ class Twitter extends BaseApi {
      * @private
      */
     _fetchUserAccessToken () {
-        var oauth = new OAuth(
+        const oauth = new OAuth(
             'https://api.twitter.com/oauth/request_token',
             'https://api.twitter.com/oauth/access_token',
             this.options.apiKey,

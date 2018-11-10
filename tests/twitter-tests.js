@@ -1,41 +1,40 @@
-'use strict';
 import sinon from 'sinon';
-import assert from 'assert';
+import chai from 'chai';
 import Twitter from '../src/twitter';
 import _ from 'lodash';
-import ResourceManager from 'resource-manager-js';
-import {Promise} from 'es6-promise';
+import { script } from 'dynamic-import';
 
+const { assert } = chai;
 describe('Twitter', function () {
 
     let origTwttr;
-    let resourceManagerLoadScriptStub;
+    let scriptImportStub;
     let loadScriptTrigger = {};
 
     beforeEach(function () {
         origTwttr = window.twttr;
-        resourceManagerLoadScriptStub = sinon.stub(ResourceManager, 'loadScript');
-        resourceManagerLoadScriptStub.returns(new Promise((resolve) => {
+        scriptImportStub = sinon.stub(script, 'import');
+        scriptImportStub.returns(new Promise((resolve) => {
             loadScriptTrigger.resolve = resolve;
         }));
     });
 
     afterEach(function () {
         window.twttr = origTwttr;
-        resourceManagerLoadScriptStub.restore();
+        scriptImportStub.restore();
     });
 
-    it('should call ResourceManager\'s loadScript method when load is called', function (done) {
+    it('should call script import method when load is called', function (done) {
         let twitter = new Twitter();
         twitter.load();
         _.defer(() => {
-            assert.ok(resourceManagerLoadScriptStub.calledWith('https://platform.twitter.com/widgets.js'));
+            assert.ok(scriptImportStub.calledWith('https://platform.twitter.com/widgets.js'));
             twitter.destroy();
             done();
         });
     });
 
-    it('should resolve the load promise only when ResourceManager\'s loadScript method resolves and the twitter api triggers our ready method in the queue', function (done) {
+    it('should resolve the load promise only when script import method resolves and the twitter api triggers our ready method in the queue', function (done) {
         let twitter = new Twitter();
         var loadSpy = sinon.spy();
         twitter.load().then(loadSpy);

@@ -45,17 +45,19 @@ class Facebook extends BaseApi {
 
         return this.load().then(() => {
 
-            let buildScope = () => {
+            const buildScope = () => {
                 options.permissions = options.permissions || [];
                 return options.permissions.reduce((prev, perm) => {
-                    let values = PERMISSIONS_MAP[perm] || [];
+                    const values = PERMISSIONS_MAP[perm] || [];
                     return values.reduce((p, value) => {
-                        if (value && prev.indexOf(value) === -1) {
-                            value = prev ? ',' + value : value;
+                        const delimiter = prev ? ',' : '';
+                        let str = value || '';
+                        if (prev.indexOf(value) === -1) {
+                            str = `${delimiter}${value}`;
                         } else {
-                            value = ''
+                            return prev;
                         }
-                        return prev += value;
+                        return prev += str;
                     }, prev);
                 }, '');
             };
