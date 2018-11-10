@@ -1,48 +1,49 @@
-import BaseApi from './base-api';
-import {OAuth, OAuth2} from 'oauth';
+import { OAuth, oauth1tokenCallback, OAuth2 } from 'oauth';
+import BaseApi, { ApiInitOptions, ApiUserAccessCredentials } from './base-api';
 
-/**
- * Twitter API-loading class.
- * @class Twitter
- */
-class Twitter extends BaseApi {
-
-    /**
-     * Constructs instance.
-     * @param [options]
-     * @param {String} [options.apiKey] - Application's consumer key (from app dashboard)
-     * @param {String} [options.apiSecret] - Application's consumer secret (from app dashboard)
-     */
-    constructor (options = {}) {
-        super(options);
-        this.options = options;
+declare global {
+    interface Window {
+        twttr: any;
     }
-    
+}
 
-    /**
-     * Loads the Twitter API.
-     * @private
-     * @returns {Promise}
-     */
-    _handleLoadApi () {
+interface TwitterUserAccessToken {
+    token: string,
+    secret: string
+}
+
+export default class Twitter extends BaseApi {
+
+    protected options: ApiInitOptions;
+
+    async login (options: ApiUserAccessCredentials) {
+        await this.load();
+        const result = await this.fetchUserAccessToken();
+        return {
+            accessToken: result.token,
+            accessTokenSecret: result.secret
+        }
+    }
+
+    protected async handleLoadApi () {
         window.twttr = window.twttr || {};
         window.twttr._e = [];
-        window.twttr.ready = function (f) {
+        window.twttr.ready = (f) => {
             window.twttr._e.push(f);
         };
         return new Promise((resolve) => {
-            window.twttr.ready(function (twttr) {
+            window.twttr.ready((twttr) => {
                 resolve(twttr);
             });
-            this._loadScript('https://platform.twitter.com/widgets.js');
+            this.loadScript('https://platform.twitter.com/widgets.js');
         });
     }
 
+
     /**
      * Gets Twitter's application-level "bearer" token necessary to use the API, without a user context.
-     * @private
      */
-    _fetchAppToken () {
+    private async fetchAppToken () {
         const oauth2 = new OAuth2(
             this.options.apiKey,
             this.options.apiSecret,
@@ -55,7 +56,7 @@ class Twitter extends BaseApi {
             oauth2.getOAuthAccessToken(
                 '',
                 {'grant_type':'client_credentials'},
-                function (e, accessToken, refreshToken, results){
+                 (e, accessToken) => {
                     if (e) {
                         reject(e);
                     } else {
@@ -65,13 +66,7 @@ class Twitter extends BaseApi {
         });
     }
 
-
-    /**
-     * Fetches the a user's access token using OAuth which is needed to utilize the social network's API methods.
-     * @returns {Promise.<string>}
-     * @private
-     */
-    _fetchUserAccessToken () {
+    private async fetchUserAccessToken (): Promise<TwitterUserAccessToken> {
         const oauth = new OAuth(
             'https://api.twitter.com/oauth/request_token',
             'https://api.twitter.com/oauth/access_token',
@@ -81,42 +76,21 @@ class Twitter extends BaseApi {
             null,
             'HMAC-SHA1'
         );
-        return new Promise((resolve, reject) => {
+        return new Promise<TwitterUserAccessToken>((resolve, reject) => {
             oauth.getOAuthRequestToken((err, token, secret) => {
                 if (err) {
                     reject(err);
                 } else {
                     resolve({
-                        token: token,
-                        secret: secret
+                        token,
+                        secret
                     });
                 }
             });
         })
     }
 
-    /**
-     * Logs a user into twitter.
-     * @param options
-     * @returns {Promise.<{Object}>} Returns a promise when user has logged in successfully and have approved all the permissions
-     * @returns {Promise.<{Object}>.String} accessToken
-     * @returns {Promise.<{Object}>.Number} userId
-     * @returns {Promise.<{Object}>.Date} expiresAt
-     */
-    login (options = {}) {
-        return this.load().then(() => {
-            return this._fetchUserAccessToken().then((result) => {
-                return {
-                    accessToken: result.token,
-                    accessTokenSecret: result.secret
-                }
-            });
-        });
-    }
-
     static get id () {
         return 'twitter';
     }
 }
-
-export default Twitter;
