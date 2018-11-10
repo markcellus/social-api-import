@@ -1,6 +1,4 @@
-'use strict';
 import BaseApi from './base-api';
-import {Promise} from 'es6-promise';
 import {OAuth, OAuth2} from 'oauth';
 
 /**

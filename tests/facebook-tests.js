@@ -1,7 +1,7 @@
 'use strict';
 import sinon from 'sinon';
 import assert from 'assert';
-import Facebook from './../src/facebook';
+import Facebook from '../src/facebook';
 import ResourceManager from 'resource-manager-js';
 import _ from 'lodash';
 import {Promise} from 'es6-promise';

@@ -1,7 +1,7 @@
 'use strict';
 import sinon from 'sinon';
 import assert from 'assert';
-import Twitter from './../src/twitter';
+import Twitter from '../src/twitter';
 import _ from 'lodash';
 import ResourceManager from 'resource-manager-js';
 import {Promise} from 'es6-promise';

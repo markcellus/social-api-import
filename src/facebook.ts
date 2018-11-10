@@ -1,6 +1,4 @@
-'use strict';
 import BaseApi from './base-api';
-import {Promise} from 'es6-promise';
 
 const PERMISSIONS_MAP = {
     createPosts: ['publish_actions'],
@@ -28,7 +26,7 @@ class Facebook extends BaseApi {
             options.version = options.version.split('v')[1];
         }
 
-        options.apiVersion = options.apiVersion || options.version || 2.1;
+        options.apiVersion = options.apiVersion || options.version || 3.0;
         options.xfbml = options.xfbml || true;
         super(options);
         this.options = options;
@@ -96,7 +94,7 @@ class Facebook extends BaseApi {
                 this.FB = FB;
                 resolve(FB);
             };
-            this._loadScript('//connect.facebook.net/en_US/sdk.js');
+            this._loadScript('https://connect.facebook.net/en_US/sdk.js');
         });
     }
 

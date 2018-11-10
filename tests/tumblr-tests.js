@@ -1,7 +1,7 @@
 "use strict";
 import sinon from 'sinon';
 import assert from 'assert';
-import Tumblr from './../src/tumblr';
+import Tumblr from '../src/tumblr';
 import ResourceManager from 'resource-manager-js';
 import _ from 'lodash';
 

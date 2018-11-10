@@ -1,7 +1,7 @@
 'use strict';
 import sinon from 'sinon';
 import assert from 'assert';
-import Instagram from './../src/instagram';
+import Instagram from '../src/instagram';
 import ResourceManager from 'resource-manager-js';
 import _ from 'lodash';
 

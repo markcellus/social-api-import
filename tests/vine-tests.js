@@ -1,7 +1,7 @@
 'use strict';
 import sinon from 'sinon';
 import assert from 'assert';
-import Vine from './../src/vine';
+import Vine from '../src/vine';
 import {Promise} from 'es6-promise';
 import ResourceManager from 'resource-manager-js';
 

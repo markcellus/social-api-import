@@ -1,7 +1,4 @@
-'use strict';
-import ResourceManager from 'resource-manager-js';
-import {Promise} from 'es6-promise';
-import _ from 'lodash';
+import { script } from 'dynamic-import';
 
 /**
  * An abstract class of which all API classes should extend.
@@ -46,7 +43,7 @@ class BaseApi {
         let idx = BaseApi.prototype._loadedScripts.indexOf(this._script);
         BaseApi.prototype._loadedScripts.splice(idx, 1);
         if (this._script && BaseApi.prototype._loadedScripts.indexOf(this._script) <= -1) {
-            ResourceManager.unloadScript(this._script);
+            script.import(this._script);
         }
     }
 
@@ -79,7 +76,7 @@ class BaseApi {
     _loadScript (path) {
         this._script = path;
         BaseApi.prototype._loadedScripts.push(this._script);
-        return ResourceManager.loadScript(this._script);
+        return script.import(this._script);
     }
     
     /**

@@ -1,6 +1,5 @@
-[![Build Status](https://travis-ci.org/mkay581/social-api.svg?branch=master)](https://travis-ci.org/mkay581/social-api)
-[![npm version](https://badge.fury.io/js/social-api-js.svg)](https://badge.fury.io/js/social-api-js)
-[![Bower version](https://badge.fury.io/bo/social-api.svg)](https://badge.fury.io/bo/social-api)
+[![Build Status](https://travis-ci.org/mkay581/social-api-import.svg?branch=master)](https://travis-ci.org/mkay581/social-api-import)
+[![npm version](https://badge.fury.io/js/social-api-import.svg)](https://badge.fury.io/js/social-api-import)
 
 # Social API
 
@@ -35,12 +34,6 @@ Here are the features that either have been completed or will be in the next few
 | User Posts |   |  |  |  |  |  |
 | User Profiles |   |  |  |  |  |  |
 
-## Usage
-
-In order to use this package, you must be using a compiler to utilize the latest ES6 javascript syntax.
-I recommend installing [babel](https://babeljs.io/) (or similiar) and `import`ing the [source](/src) files directly.
-Or you can be old-school and use the files in the [dist](/dist) folder. :)
-
 ## API
 
 ### constructor([options])
@@ -58,7 +51,7 @@ Certain networks allow additional `options` outside of the ones we support. You 
 Please see the documentation of the network to find out which addition `options` properties you can to pass.
 
 ```javascript
-import {Facebook} from 'social-api-js';
+import {Facebook} from 'social-api-import';
 let fb = new Facebook({appId: 'MyAP33IYEK3y'});
 ```
 
@@ -71,7 +64,7 @@ The following example uses Facebook, but you can also follow this same pattern f
 network interfaces (Twitter, Tumblr, Instagram, Vine, etc);
 
 ```javascript
-import {Facebook} from 'social-api-js';
+import {Facebook} from 'social-api-import';
 let fb = new Facebook({appId: 'MyAP33IYEK3y'});
 fb.load().then(function (FB) {
     // API loaded! Now, do something with the FB object
