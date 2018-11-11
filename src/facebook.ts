@@ -1,4 +1,11 @@
-import BaseApi from './base-api';
+import BaseApi, { ApiInitOptions, ApiUserAccessCredentials, ApiLoginOptions } from './base-api';
+import InitParams = facebook.InitParams;
+
+declare global {
+    interface Window {
+        fbAsyncInit: () => void;
+    }
+}
 
 const PERMISSIONS_MAP = {
     createPosts: ['publish_actions'],
@@ -9,94 +16,63 @@ const PERMISSIONS_MAP = {
     readFriendProfiles: ['user_friends']
 };
 
-/**
- * Facebook API class.
- * @class Facebook
- */
-class Facebook extends BaseApi {
+interface FacebookApiOptions extends ApiInitOptions, InitParams {
+    appId: string;
+    xfbml?: boolean;
+    version?: string;
+    scope?: string;
+}
 
-    /**
-     * Initializes the the API.
-     * @param {Object} [options] - Facebook API options
-     * @param {Number} [options.apiVersion] - The version of API to use
-     * @param {Boolean} [options.xfbml] - Whether to use Facebook's extended markup language
-     */
-    constructor (options = {}) {
+export default class Facebook extends BaseApi {
+
+    protected options: FacebookApiOptions;
+    private FB: any;
+
+    constructor (options: FacebookApiOptions = { appId: undefined}) {
         if (options.version) {
             options.version = options.version.split('v')[1];
         }
-
         options.apiVersion = options.apiVersion || options.version || 3.0;
         options.xfbml = options.xfbml || true;
         super(options);
-        this.options = options;
     }
 
-    /**
-     * Logs a user into facebook in order to get the access token for that user.
-     * @param options
-     * @param {Array} options.permissions - An array of standardized permissions (see Permissions docs)
-     * @returns {Promise.<{Object}>} Returns a promise when user has logged in successfully and have approved all the permissions
-     * @returns {Promise.<{Object}>.String} accessToken
-     * @returns {Promise.<{Object}>.Number} userId
-     * @returns {Promise.<{Object}>.Date} expiresAt
-     */
-    login (options = {}) {
-
-        return this.load().then(() => {
-
-            const buildScope = () => {
-                options.permissions = options.permissions || [];
-                return options.permissions.reduce((prev, perm) => {
-                    const values = PERMISSIONS_MAP[perm] || [];
-                    return values.reduce((p, value) => {
-                        const delimiter = prev ? ',' : '';
-                        let str = value || '';
-                        if (prev.indexOf(value) === -1) {
-                            str = `${delimiter}${value}`;
-                        } else {
-                            return prev;
-                        }
-                        return prev += str;
-                    }, prev);
-                }, '');
-            };
-
-            options.scope = options.scope || buildScope(options.permissions);
-
-            return new Promise((resolve) => {
-                this.FB.login((response) => {
-                    if (response.authResponse) {
-                        // authorized!
-                        resolve({
-                            accessToken: response.authResponse.accessToken,
-                            userId: response.authResponse.userID,
-                            expiresAt: response.authResponse.expiresIn
-                        });
+    async login (options: ApiLoginOptions = {}): Promise<ApiUserAccessCredentials> {
+        await this.load();
+        const buildScope = () => {
+            options.permissions = options.permissions || [];
+            return options.permissions.reduce((prev, perm) => {
+                const values = PERMISSIONS_MAP[perm] || [];
+                return values.reduce((p, value) => {
+                    const delimiter = prev ? ',' : '';
+                    let str = value || '';
+                    if (prev.indexOf(value) === -1) {
+                        str = `${delimiter}${value}`;
                     } else {
-                        // User either abandoned the login flow or,
-                        // for some other reason, did not fully authorize
-                        resolve({});
+                        return prev;
                     }
-                }, options);
-            });
-        })
-    }
+                    return prev += str;
+                }, prev);
+            }, '');
+        };
 
-    /**
-     * Handles loading the API.
-     * @private
-     * @returns {Promise}
-     */
-    _handleLoadApi () {
-        return new Promise((resolve) => {
-            window.fbAsyncInit = () => {
-                this.options.version = 'v' + this.options.apiVersion;
-                FB.init(this.options);
-                this.FB = FB;
-                resolve(FB);
-            };
-            this._loadScript('https://connect.facebook.net/en_US/sdk.js');
+        options.scope = options.scope || buildScope();
+
+        return new Promise<ApiUserAccessCredentials>((resolve) => {
+            this.FB.login((response) => {
+                if (response.authResponse) {
+                    // authorized!
+                    resolve({
+                        accessToken: response.authResponse.accessToken,
+                        userId: response.authResponse.userID,
+                        expiresAt: response.authResponse.expiresIn
+                    } as ApiUserAccessCredentials);
+                } else {
+                    // User either abandoned the login flow or,
+                    // for some other reason, did not fully authorize
+                    resolve({} as ApiUserAccessCredentials);
+                }
+            }, options);
         });
     }
 
@@ -109,6 +85,16 @@ class Facebook extends BaseApi {
         return super.destroy();
     }
 
-}
+    protected async handleLoadApi () {
+        return new Promise((resolve) => {
+            window.fbAsyncInit = () => {
+                this.options.version = 'v' + this.options.apiVersion;
+                FB.init(this.options);
+                this.FB = FB;
+                resolve(FB);
+            };
+            this.loadScript('https://connect.facebook.net/en_US/sdk.js');
+        });
+    }
 
-export default Facebook;
+}

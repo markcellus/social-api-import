@@ -1,36 +1,30 @@
-import BaseApi from './base-api';
+import BaseApi, { ApiInitOptions } from './base-api';
 
-/**
- * Tumblr API-loading class.
- * @class Tumblr
- */
-class Tumblr extends BaseApi {
+interface TumblrApiOptions extends ApiInitOptions {
+    'base-hostname': string;
+    api_key: string
+}
 
-    /**
-     * Constructor
-     * @param {Object} options - Tumblr API options
-     * @param {Object} options.base-hostname - The base-hostname
-     * @param {Object} [options.api_key] - API key
-     * @returns {Promise} Returns a promise that resolves when the Tumblr API has been loaded
-     */
-    constructor (options = {}) {
+export default class Tumblr extends BaseApi {
+
+    protected options: TumblrApiOptions;
+
+    constructor (options: TumblrApiOptions = {
+        'base-hostname': undefined,
+        api_key: undefined
+    }) {
+        super(options);
         if (!options['base-hostname']) {
             throw Error('Tumblr constructor needs to be passed a "base-hostname" option');
         }
         options.api_key = options.api_key || '';
-        super(options);
-        this.options = options;
     }
 
     static get id () {
         return 'tumblr';
     }
 
-    /**
-     * Fires callback when API has been loaded.
-     * @private
-     */
-    _handleLoadApi () {
+    protected async handleLoadApi () {
         const callbackMethod = 'onTumblrReady';
 
         // we're arbitrarily choosing the "/posts" endpoint to prevent getting a 404 error
@@ -40,13 +34,9 @@ class Tumblr extends BaseApi {
             'callback=' + callbackMethod;
 
         return new Promise((resolve) => {
-            window[callbackMethod] = function () {
-                resolve();
-            };
-            this._loadScript(scriptUrl);
+            window[callbackMethod] = resolve;
+            this.loadScript(scriptUrl);
         })
     }
 
 }
-
-export default Tumblr;
