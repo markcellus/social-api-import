@@ -12,8 +12,5 @@
     "es6",
     "es2015",
     "dom"
-  ],
-  "typeRoots": [
-    "types"
   ]
 }
