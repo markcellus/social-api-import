@@ -1,5 +1,5 @@
 /*!
- * Social-api-import v0.1.2
+ * Social-api-import v0.1.3
  * https://npm.com/social-api-import
  *
  * Copyright (c) 2018 Mark Kennedy
@@ -118,6 +118,14 @@ class BaseApi {
             script.unload(this.script);
         }
     }
+    load() {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!this.loadApiListenerPromiseMap) {
+                this.loadApiListenerPromiseMap = this.handleLoadApi(this.options);
+            }
+            return this.loadApiListenerPromiseMap;
+        });
+    }
     login(options) {
         return __awaiter(this, void 0, void 0, function* () {
             return {
@@ -126,14 +134,6 @@ class BaseApi {
                 userId: '',
                 expiresAt: null
             };
-        });
-    }
-    load() {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (!this.loadApiListenerPromiseMap) {
-                this.loadApiListenerPromiseMap = this.handleLoadApi(this.options);
-            }
-            return this.loadApiListenerPromiseMap;
         });
     }
     loadScript(path) {
