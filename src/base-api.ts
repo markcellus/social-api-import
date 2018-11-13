@@ -39,6 +39,13 @@ export default abstract class BaseApi {
         }
     }
 
+    async load () {
+        if (!this.loadApiListenerPromiseMap) {
+            this.loadApiListenerPromiseMap = this.handleLoadApi(this.options);
+        }
+        return this.loadApiListenerPromiseMap;
+    }
+
     protected async login (options: ApiLoginOptions): Promise<ApiUserAccessCredentials> {
        return {
            accessToken: '',
@@ -46,13 +53,6 @@ export default abstract class BaseApi {
            userId: '',
            expiresAt: null
        }
-    }
-
-    protected async load () {
-        if (!this.loadApiListenerPromiseMap) {
-            this.loadApiListenerPromiseMap = this.handleLoadApi(this.options);
-        }
-        return this.loadApiListenerPromiseMap;
     }
 
     protected loadScript (path: string) {
