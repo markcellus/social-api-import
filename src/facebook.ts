@@ -1,5 +1,12 @@
-import BaseApi, { ApiInitOptions, ApiUserAccessCredentials, ApiLoginOptions } from './base-api';
-import InitParams = facebook.InitParams;
+import BaseApi, {
+    InitOptions as BaseInitOptions,
+    UserAccessCredentials,
+    PermissionsMap,
+    LoginOptions as BaseLoginOptions
+} from './base-api';
+import FacebookInitParams = facebook.InitParams;
+import FacebookLoginOptions = facebook.LoginOptions;
+import StatusResponse = facebook.StatusResponse;
 
 declare global {
     interface Window {
@@ -7,7 +14,7 @@ declare global {
     }
 }
 
-const PERMISSIONS_MAP = {
+const PERMISSIONS_MAP: PermissionsMap = {
     createPosts: ['publish_actions'],
     readPosts: ['user_posts'],
     updatePosts: ['publish_actions'],
@@ -16,79 +23,74 @@ const PERMISSIONS_MAP = {
     readFriendProfiles: ['user_friends']
 };
 
-interface FacebookApiOptions extends ApiInitOptions, InitParams {
-    appId: string;
-    xfbml?: boolean;
-    version?: string;
-    scope?: string;
-}
+export type InitOptions = BaseInitOptions & FacebookInitParams;
+
+export type LoginOptions = BaseLoginOptions & FacebookLoginOptions;
 
 export default class Facebook extends BaseApi {
-
-    protected options: FacebookApiOptions;
+    protected options: InitOptions;
     private FB: any;
 
-    constructor (options: FacebookApiOptions = { appId: undefined}) {
-        if (options.version) {
-            options.version = options.version.split('v')[1];
-        }
-        options.apiVersion = options.apiVersion || options.version || 3.0;
-        options.xfbml = options.xfbml || true;
+    constructor(options: InitOptions) {
         super(options);
+        if (options.version) {
+            options.version = !options.version.startsWith('v') ? 'v' + options.version : options.version;
+        }
+        options.xfbml = options.xfbml || true;
+        this.options = options;
     }
 
-    async login (options: ApiLoginOptions = {}): Promise<ApiUserAccessCredentials> {
+    async login(options: LoginOptions = {}): Promise<UserAccessCredentials> {
         await this.load();
         const buildScope = () => {
             options.permissions = options.permissions || [];
-            return options.permissions.reduce((prev, perm) => {
-                const values = PERMISSIONS_MAP[perm] || [];
+            return options.permissions.reduce((prev = '', perm) => {
+                const values: Array<FacebookLoginOptions['scope']> = PERMISSIONS_MAP[perm] || [];
                 return values.reduce((p, value) => {
                     const delimiter = prev ? ',' : '';
                     let str = value || '';
-                    if (prev.indexOf(value) === -1) {
+                    if (prev.indexOf(value || '') === -1) {
                         str = `${delimiter}${value}`;
+                        return (prev += str);
                     } else {
                         return prev;
                     }
-                    return prev += str;
                 }, prev);
             }, '');
         };
 
         options.scope = options.scope || buildScope();
 
-        return new Promise<ApiUserAccessCredentials>((resolve) => {
-            this.FB.login((response) => {
+        return new Promise<UserAccessCredentials>(resolve => {
+            this.FB.login((response: StatusResponse) => {
                 if (response.authResponse) {
                     // authorized!
                     resolve({
                         accessToken: response.authResponse.accessToken,
                         userId: response.authResponse.userID,
                         expiresAt: response.authResponse.expiresIn
-                    } as ApiUserAccessCredentials);
+                    } as UserAccessCredentials);
                 } else {
                     // User either abandoned the login flow or,
                     // for some other reason, did not fully authorize
-                    resolve({} as ApiUserAccessCredentials);
+                    resolve({} as UserAccessCredentials);
                 }
             }, options);
         });
     }
 
-    static get id () {
+    static get id() {
         return 'facebook';
     }
 
-    destroy () {
+    destroy() {
         delete window.fbAsyncInit;
         return super.destroy();
     }
 
-    protected async handleLoadApi () {
-        return new Promise((resolve) => {
+    protected async handleLoadApi() {
+        return new Promise(resolve => {
             window.fbAsyncInit = () => {
-                this.options.version = 'v' + this.options.apiVersion;
                 FB.init(this.options);
                 this.FB = FB;
                 resolve(FB);
@@ -96,5 +98,4 @@ export default class Facebook extends BaseApi {
             this.loadScript('https://connect.facebook.net/en_US/sdk.js');
         });
     }
-
 }
