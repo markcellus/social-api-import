@@ -1140,10 +1140,16 @@ const script = {
 
 const loadedScripts = [];
 class BaseApi {
-    constructor(options) {
+    constructor(options = {}) {
+        if (options.apiVersion) {
+            console.warn(`"apiVersion" has been deprecated, please use the "version" option`);
+            options.version = options.apiVersion + '';
+        }
         this.options = options;
     }
     destroy() {
+        if (!this.script)
+            return;
         const idx = loadedScripts.indexOf(this.script);
         loadedScripts.splice(idx, 1);
         if (this.script && loadedScripts.indexOf(this.script) <= -1) {
@@ -1164,7 +1170,7 @@ class BaseApi {
                 accessToken: '',
                 accessTokenSecret: '',
                 userId: '',
-                expiresAt: null
+                expiresAt: Date.now()
             };
         });
     }
@@ -1184,6 +1190,13 @@ class BaseApi {
 }
 
 class Twitter extends BaseApi {
+    constructor() {
+        super(...arguments);
+        this.options = {
+            apiKey: '',
+            apiSecret: ''
+        };
+    }
     login(options) {
         return __awaiter(this, void 0, void 0, function* () {
             yield this.load();
@@ -1198,11 +1211,11 @@ class Twitter extends BaseApi {
         return __awaiter(this, void 0, void 0, function* () {
             window.twttr = window.twttr || {};
             window.twttr._e = [];
-            window.twttr.ready = (f) => {
+            window.twttr.ready = f => {
                 window.twttr._e.push(f);
             };
-            return new Promise((resolve) => {
-                window.twttr.ready((twttr) => {
+            return new Promise(resolve => {
+                window.twttr.ready(twttr => {
                     resolve(twttr);
                 });
                 this.loadScript('https://platform.twitter.com/widgets.js');
@@ -1214,9 +1227,9 @@ class Twitter extends BaseApi {
      */
     fetchAppToken() {
         return __awaiter(this, void 0, void 0, function* () {
-            const oauth2 = new OAuth2(this.options.apiKey, this.options.apiSecret, 'https://api.twitter.com/', null, 'oauth2/token', null);
+            const oauth2 = new OAuth2(this.options.apiKey, this.options.apiSecret, 'https://api.twitter.com/', undefined, 'oauth2/token', undefined);
             return new Promise((resolve, reject) => {
-                oauth2.getOAuthAccessToken('', { 'grant_type': 'client_credentials' }, (e, accessToken) => {
+                oauth2.getOAuthAccessToken('', { grant_type: 'client_credentials' }, (e, accessToken) => {
                     if (e) {
                         reject(e);
                     }

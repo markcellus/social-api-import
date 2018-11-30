@@ -1,5 +1,5 @@
 /*!
- * Social-api-import v0.1.3
+ * Social-api-import v0.2.0
  * https://npm.com/social-api-import
  *
  * Copyright (c) 2018 Mark Kennedy
@@ -108,10 +108,16 @@ const script = {
 
 const loadedScripts = [];
 class BaseApi {
-    constructor(options) {
+    constructor(options = {}) {
+        if (options.apiVersion) {
+            console.warn(`"apiVersion" has been deprecated, please use the "version" option`);
+            options.version = options.apiVersion + '';
+        }
         this.options = options;
     }
     destroy() {
+        if (!this.script)
+            return;
         const idx = loadedScripts.indexOf(this.script);
         loadedScripts.splice(idx, 1);
         if (this.script && loadedScripts.indexOf(this.script) <= -1) {
@@ -132,7 +138,7 @@ class BaseApi {
                 accessToken: '',
                 accessTokenSecret: '',
                 userId: '',
-                expiresAt: null
+                expiresAt: Date.now()
             };
         });
     }
@@ -160,36 +166,36 @@ const PERMISSIONS_MAP = {
     readFriendProfiles: ['user_friends']
 };
 class Facebook extends BaseApi {
-    constructor(options = { appId: undefined }) {
-        if (options.version) {
-            options.version = options.version.split('v')[1];
-        }
-        options.apiVersion = options.apiVersion || options.version || 3.0;
-        options.xfbml = options.xfbml || true;
+    constructor(options) {
         super(options);
+        if (options.version) {
+            options.version = !options.version.startsWith('v') ? 'v' + options.version : options.version;
+        }
+        options.xfbml = options.xfbml || true;
+        this.options = options;
     }
     login(options = {}) {
         return __awaiter(this, void 0, void 0, function* () {
             yield this.load();
             const buildScope = () => {
                 options.permissions = options.permissions || [];
-                return options.permissions.reduce((prev, perm) => {
+                return options.permissions.reduce((prev = '', perm) => {
                     const values = PERMISSIONS_MAP[perm] || [];
                     return values.reduce((p, value) => {
                         const delimiter = prev ? ',' : '';
                         let str = value || '';
-                        if (prev.indexOf(value) === -1) {
+                        if (prev.indexOf(value || '') === -1) {
                             str = `${delimiter}${value}`;
+                            return (prev += str);
                         }
                         else {
                             return prev;
                         }
-                        return prev += str;
                     }, prev);
                 }, '');
             };
             options.scope = options.scope || buildScope();
-            return new Promise((resolve) => {
+            return new Promise(resolve => {
                 this.FB.login((response) => {
                     if (response.authResponse) {
                         // authorized!
@@ -217,9 +223,8 @@ class Facebook extends BaseApi {
     }
     handleLoadApi() {
         return __awaiter(this, void 0, void 0, function* () {
-            return new Promise((resolve) => {
+            return new Promise(resolve => {
                 window.fbAsyncInit = () => {
-                    this.options.version = 'v' + this.options.apiVersion;
                     FB.init(this.options);
                     this.FB = FB;
                     resolve(FB);

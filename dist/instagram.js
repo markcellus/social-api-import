@@ -100,10 +100,16 @@ const script = {
 
 const loadedScripts = [];
 class BaseApi {
-    constructor(options) {
+    constructor(options = {}) {
+        if (options.apiVersion) {
+            console.warn(`"apiVersion" has been deprecated, please use the "version" option`);
+            options.version = options.apiVersion + '';
+        }
         this.options = options;
     }
     destroy() {
+        if (!this.script)
+            return;
         const idx = loadedScripts.indexOf(this.script);
         loadedScripts.splice(idx, 1);
         if (this.script && loadedScripts.indexOf(this.script) <= -1) {
@@ -124,7 +130,7 @@ class BaseApi {
                 accessToken: '',
                 accessTokenSecret: '',
                 userId: '',
-                expiresAt: null
+                expiresAt: Date.now()
             };
         });
     }

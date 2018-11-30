@@ -106,10 +106,16 @@ const script = {
 
 const loadedScripts = [];
 class BaseApi {
-    constructor(options) {
+    constructor(options = {}) {
+        if (options.apiVersion) {
+            console.warn(`"apiVersion" has been deprecated, please use the "version" option`);
+            options.version = options.apiVersion + '';
+        }
         this.options = options;
     }
     destroy() {
+        if (!this.script)
+            return;
         const idx = loadedScripts.indexOf(this.script);
         loadedScripts.splice(idx, 1);
         if (this.script && loadedScripts.indexOf(this.script) <= -1) {
@@ -130,7 +136,7 @@ class BaseApi {
                 accessToken: '',
                 accessTokenSecret: '',
                 userId: '',
-                expiresAt: null
+                expiresAt: Date.now()
             };
         });
     }
@@ -158,36 +164,36 @@ const PERMISSIONS_MAP = {
     readFriendProfiles: ['user_friends']
 };
 class Facebook extends BaseApi {
-    constructor(options = { appId: undefined }) {
-        if (options.version) {
-            options.version = options.version.split('v')[1];
-        }
-        options.apiVersion = options.apiVersion || options.version || 3.0;
-        options.xfbml = options.xfbml || true;
+    constructor(options) {
         super(options);
+        if (options.version) {
+            options.version = !options.version.startsWith('v') ? 'v' + options.version : options.version;
+        }
+        options.xfbml = options.xfbml || true;
+        this.options = options;
     }
     login(options = {}) {
         return __awaiter(this, void 0, void 0, function* () {
             yield this.load();
             const buildScope = () => {
                 options.permissions = options.permissions || [];
-                return options.permissions.reduce((prev, perm) => {
+                return options.permissions.reduce((prev = '', perm) => {
                     const values = PERMISSIONS_MAP[perm] || [];
                     return values.reduce((p, value) => {
                         const delimiter = prev ? ',' : '';
                         let str = value || '';
-                        if (prev.indexOf(value) === -1) {
+                        if (prev.indexOf(value || '') === -1) {
                             str = `${delimiter}${value}`;
+                            return (prev += str);
                         }
                         else {
                             return prev;
                         }
-                        return prev += str;
                     }, prev);
                 }, '');
             };
             options.scope = options.scope || buildScope();
-            return new Promise((resolve) => {
+            return new Promise(resolve => {
                 this.FB.login((response) => {
                     if (response.authResponse) {
                         // authorized!
@@ -215,9 +221,8 @@ class Facebook extends BaseApi {
     }
     handleLoadApi() {
         return __awaiter(this, void 0, void 0, function* () {
-            return new Promise((resolve) => {
+            return new Promise(resolve => {
                 window.fbAsyncInit = () => {
-                    this.options.version = 'v' + this.options.apiVersion;
                     FB.init(this.options);
                     this.FB = FB;
                     resolve(FB);
@@ -243,15 +248,13 @@ class Instagram extends BaseApi {
 }
 
 class Tumblr extends BaseApi {
-    constructor(options = {
-        'base-hostname': undefined,
-        api_key: undefined
-    }) {
+    constructor(options) {
         super(options);
         if (!options['base-hostname']) {
             throw Error('Tumblr constructor needs to be passed a "base-hostname" option');
         }
         options.api_key = options.api_key || '';
+        this.options = options;
     }
     static get id() {
         return 'tumblr';
@@ -260,10 +263,15 @@ class Tumblr extends BaseApi {
         return __awaiter(this, void 0, void 0, function* () {
             const callbackMethod = 'onTumblrReady';
             // we're arbitrarily choosing the "/posts" endpoint to prevent getting a 404 error
-            const scriptUrl = '//api.tumblr.com/v2/blog/' + this.options['base-hostname'] + '/posts?' +
-                'api_key=' + this.options.api_key + '&' +
-                'callback=' + callbackMethod;
-            return new Promise((resolve) => {
+            const scriptUrl = '//api.tumblr.com/v2/blog/' +
+                this.options['base-hostname'] +
+                '/posts?' +
+                'api_key=' +
+                this.options.api_key +
+                '&' +
+                'callback=' +
+                callbackMethod;
+            return new Promise(resolve => {
                 window[callbackMethod] = resolve;
                 this.loadScript(scriptUrl);
             });
@@ -1306,6 +1314,13 @@ var OAuthEcho = oauth.OAuthEcho;
 var OAuth2 = oauth2.OAuth2;
 
 class Twitter extends BaseApi {
+    constructor() {
+        super(...arguments);
+        this.options = {
+            apiKey: '',
+            apiSecret: ''
+        };
+    }
     login(options) {
         return __awaiter(this, void 0, void 0, function* () {
             yield this.load();
@@ -1320,11 +1335,11 @@ class Twitter extends BaseApi {
         return __awaiter(this, void 0, void 0, function* () {
             window.twttr = window.twttr || {};
             window.twttr._e = [];
-            window.twttr.ready = (f) => {
+            window.twttr.ready = f => {
                 window.twttr._e.push(f);
             };
-            return new Promise((resolve) => {
-                window.twttr.ready((twttr) => {
+            return new Promise(resolve => {
+                window.twttr.ready(twttr => {
                     resolve(twttr);
                 });
                 this.loadScript('https://platform.twitter.com/widgets.js');
@@ -1336,9 +1351,9 @@ class Twitter extends BaseApi {
      */
     fetchAppToken() {
         return __awaiter(this, void 0, void 0, function* () {
-            const oauth2 = new OAuth2(this.options.apiKey, this.options.apiSecret, 'https://api.twitter.com/', null, 'oauth2/token', null);
+            const oauth2 = new OAuth2(this.options.apiKey, this.options.apiSecret, 'https://api.twitter.com/', undefined, 'oauth2/token', undefined);
             return new Promise((resolve, reject) => {
-                oauth2.getOAuthAccessToken('', { 'grant_type': 'client_credentials' }, (e, accessToken) => {
+                oauth2.getOAuthAccessToken('', { grant_type: 'client_credentials' }, (e, accessToken) => {
                     if (e) {
                         reject(e);
                     }

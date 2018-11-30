@@ -100,10 +100,16 @@ const script = {
 
 const loadedScripts = [];
 class BaseApi {
-    constructor(options) {
+    constructor(options = {}) {
+        if (options.apiVersion) {
+            console.warn(`"apiVersion" has been deprecated, please use the "version" option`);
+            options.version = options.apiVersion + '';
+        }
         this.options = options;
     }
     destroy() {
+        if (!this.script)
+            return;
         const idx = loadedScripts.indexOf(this.script);
         loadedScripts.splice(idx, 1);
         if (this.script && loadedScripts.indexOf(this.script) <= -1) {
@@ -124,7 +130,7 @@ class BaseApi {
                 accessToken: '',
                 accessTokenSecret: '',
                 userId: '',
-                expiresAt: null
+                expiresAt: Date.now()
             };
         });
     }
@@ -144,15 +150,13 @@ class BaseApi {
 }
 
 class Tumblr extends BaseApi {
-    constructor(options = {
-        'base-hostname': undefined,
-        api_key: undefined
-    }) {
+    constructor(options) {
         super(options);
         if (!options['base-hostname']) {
             throw Error('Tumblr constructor needs to be passed a "base-hostname" option');
         }
         options.api_key = options.api_key || '';
+        this.options = options;
     }
     static get id() {
         return 'tumblr';
@@ -161,10 +165,15 @@ class Tumblr extends BaseApi {
         return __awaiter(this, void 0, void 0, function* () {
             const callbackMethod = 'onTumblrReady';
             // we're arbitrarily choosing the "/posts" endpoint to prevent getting a 404 error
-            const scriptUrl = '//api.tumblr.com/v2/blog/' + this.options['base-hostname'] + '/posts?' +
-                'api_key=' + this.options.api_key + '&' +
-                'callback=' + callbackMethod;
-            return new Promise((resolve) => {
+            const scriptUrl = '//api.tumblr.com/v2/blog/' +
+                this.options['base-hostname'] +
+                '/posts?' +
+                'api_key=' +
+                this.options.api_key +
+                '&' +
+                'callback=' +
+                callbackMethod;
+            return new Promise(resolve => {
                 window[callbackMethod] = resolve;
                 this.loadScript(scriptUrl);
             });
