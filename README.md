@@ -43,7 +43,7 @@ You can pass a standardized set of options to each API:
 | Parameter | Type | Description | Default | Required?
 |--------|--------|--------|--------|--------|
 | appId | String | The application ID supplied by the network |  | Yes |
-| apiVersion | Number | The api version to use | Latest API version  | No |
+| version | String | The api version to use |   | Yes |
 | apiKey | String | The application key used to access the network's API |  | No |
 | apiSecret | String | The application secret used to access the network's API |  | No |
 

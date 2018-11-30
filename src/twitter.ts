@@ -1,5 +1,5 @@
-import { OAuth, oauth1tokenCallback, OAuth2 } from 'oauth';
-import BaseApi, { ApiInitOptions, ApiUserAccessCredentials } from './base-api';
+import { OAuth, OAuth2 } from 'oauth';
+import BaseApi, { InitOptions as BaseInitOptions, LoginOptions } from './base-api';
 
 declare global {
     interface Window {
@@ -8,65 +8,69 @@ declare global {
 }
 
 interface TwitterUserAccessToken {
-    token: string,
-    secret: string
+    token: string;
+    secret: string;
+}
+
+interface InitOptions extends BaseInitOptions {
+    apiKey: string;
+    apiSecret: string;
 }
 
 export default class Twitter extends BaseApi {
+    protected options: InitOptions = {
+        apiKey: '',
+        apiSecret: ''
+    };
 
-    protected options: ApiInitOptions;
-
-    async login (options: ApiUserAccessCredentials) {
+    async login(options: LoginOptions) {
         await this.load();
         const result = await this.fetchUserAccessToken();
         return {
             accessToken: result.token,
             accessTokenSecret: result.secret
-        }
+        };
     }
 
-    protected async handleLoadApi () {
+    protected async handleLoadApi() {
         window.twttr = window.twttr || {};
         window.twttr._e = [];
-        window.twttr.ready = (f) => {
+        window.twttr.ready = f => {
             window.twttr._e.push(f);
         };
-        return new Promise((resolve) => {
-            window.twttr.ready((twttr) => {
+        return new Promise(resolve => {
+            window.twttr.ready(twttr => {
                 resolve(twttr);
             });
             this.loadScript('https://platform.twitter.com/widgets.js');
         });
     }
 
-
     /**
      * Gets Twitter's application-level "bearer" token necessary to use the API, without a user context.
      */
-    private async fetchAppToken () {
+    private async fetchAppToken() {
         const oauth2 = new OAuth2(
             this.options.apiKey,
             this.options.apiSecret,
             'https://api.twitter.com/',
-            null,
+            undefined,
             'oauth2/token',
-            null);
+            undefined
+        );
 
         return new Promise((resolve, reject) => {
-            oauth2.getOAuthAccessToken(
-                '',
-                {'grant_type':'client_credentials'},
-                 (e, accessToken) => {
-                    if (e) {
-                        reject(e);
-                    } else {
-                        resolve(accessToken);
-                    }
-                });
+            oauth2.getOAuthAccessToken('', { grant_type: 'client_credentials' }, (e, accessToken) => {
+                if (e) {
+                    reject(e);
+                } else {
+                    resolve(accessToken);
+                }
+            });
         });
     }
 
-    private async fetchUserAccessToken (): Promise<TwitterUserAccessToken> {
+    private async fetchUserAccessToken(): Promise<TwitterUserAccessToken> {
         const oauth = new OAuth(
             'https://api.twitter.com/oauth/request_token',
             'https://api.twitter.com/oauth/access_token',
@@ -87,10 +91,10 @@ export default class Twitter extends BaseApi {
                     });
                 }
             });
-        })
+        });
     }
 
-    static get id () {
+    static get id() {
         return 'twitter';
     }
 }
