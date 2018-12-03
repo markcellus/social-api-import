@@ -4,10 +4,4 @@ import Tumblr from './tumblr';
 import Twitter from './twitter';
 import Vine from './vine';
 
-export {
-    Facebook,
-    Instagram,
-    Tumblr,
-    Twitter,
-    Vine
-}
+export { Facebook, Instagram, Tumblr, Twitter, Vine };
