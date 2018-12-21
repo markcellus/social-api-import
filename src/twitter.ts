@@ -1,4 +1,4 @@
-import BaseApi, { InitOptions as BaseInitOptions } from './base-api';
+import BaseApi from './base-api';
 
 declare global {
     interface Window {
@@ -6,17 +6,7 @@ declare global {
     }
 }
 
-interface InitOptions extends BaseInitOptions {
-    apiKey: string;
-    apiSecret: string;
-}
-
 export default class Twitter extends BaseApi {
-    protected options: InitOptions = {
-        apiKey: '',
-        apiSecret: ''
-    };
-
     protected async handleLoadApi() {
         window.twttr = window.twttr || {};
         window.twttr._e = [];

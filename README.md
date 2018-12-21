@@ -33,7 +33,7 @@ Please see the documentation of the network to find out which addition `options`
 
 ```javascript
 import {Facebook} from 'social-api-import';
-let fb = new Facebook({appId: 'MyAP33IYEK3y'});
+const fb = new Facebook({appId: 'MyAP33IYEK3y'});
 ```
 
 ### load()
@@ -42,15 +42,23 @@ This method allows you to lazily load the api of any social network. It will inj
 to use the API. It also returns a promise that is the API object of the network.
 
 The following example uses Facebook, but you can also follow this same pattern for each of the other
-network interfaces (Twitter, Tumblr, Instagram, Vine, etc);
+network interfaces (Twitter, Tumblr, Instagram, Vine, etc). Here is an example using Facebook and Twitter.
 
 ```javascript
-import {Facebook} from 'social-api-import';
-let fb = new Facebook({appId: 'MyAP33IYEK3y'});
-fb.load().then(function (FB) {
-    // API loaded! Now, do something with the FB object
-    console.log(FB);
+import {Facebook, Twitter} from 'social-api-import';
+const fb = new Facebook({
+    appId: 'MyAP33IYEK3y', 
+    version: 'v3.2' // use the 3.2 version of Facebook's Graph API
 });
+fb.load().then((FB) => {
+    // API loaded! Now, login
+    FB.login();
+});
+
+const twitter = new Twitter();
+twitter.load().then((twttr) => {
+    twttr.widgets.load() // load widgets
+})
 ```
 
 ## Development
