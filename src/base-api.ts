@@ -7,13 +7,6 @@ export interface InitOptions {
     apiVersion?: string | number; // TODO: Deprecated, remove in next major version
 }
 
-export interface UserAccessCredentials {
-    accessToken: string;
-    accessTokenSecret?: string;
-    userId?: string;
-    expiresAt?: number;
-}
-
 export interface LoginOptions {
     permissions?: Permission[];
 }
@@ -64,15 +57,6 @@ export default abstract class BaseApi {
             this.loadApiListenerPromiseMap = this.handleLoadApi(this.options);
         }
         return this.loadApiListenerPromiseMap;
-    }
-
-    protected async login(options: LoginOptions): Promise<UserAccessCredentials> {
-        return {
-            accessToken: '',
-            accessTokenSecret: '',
-            userId: '',
-            expiresAt: Date.now()
-        };
     }
 
     protected loadScript(path: string) {
