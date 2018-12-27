@@ -10,6 +10,7 @@ This library allows you to asynchronous load multiple social media client API's 
 Supports the following APIs:
 
 * Facebook
+* Google+
 * Tumblr
 * Twitter
 * Instagram
